@@ -1,5 +1,5 @@
 ﻿; ===================================================================================
-; AHK Version ...: AHK_L 1.1.13.01 x64 Unicode
+; AHK Version ...: AHK_L 1.1.14.01 x64 Unicode
 ; Win Version ...: Windows 7 Professional x64 SP1
 ; Description ...: Calculate hash from string or file to
 ;                  MD2, MD4, MD5, SHA1, SHA-256, SHA-384, SHA-512
@@ -8,7 +8,7 @@
 ; License .......: WTFPL
 ; License URL ...: http://www.wtfpl.net/txt/copying/
 ; ===================================================================================
-;@Ahk2Exe-SetName HashCalc v0.3
+;@Ahk2Exe-SetName HashCalc v0.4
 ;@Ahk2Exe-SetDescription HashCalc
 ;@Ahk2Exe-SetVersion 2013.12.30-1545
 ;@Ahk2Exe-SetCopyright Copyright (c) 2013`, jNizM
@@ -71,7 +71,7 @@ Gui, Add, Button, xm+337 ym+379 w80 -Theme 0x8000 gCalculate, Calculate
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClear, Clear
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClose, Close
 
-Gui, Show, AutoSize, HashCalc v0.3
+Gui, Show, AutoSize, HashCalc v0.4
 SetTimer, CheckEdit, 100
 return
 
@@ -98,13 +98,13 @@ return
 
 Calculate:
     Gui, Submit, NoHide
-    GuiControl,, MD2,  % CheckMD2  = "1" ? (DDL = "2" ? MD2FromFile(Str)    : (Check = "0" ? MD2(Str)    : SecureSalted("MD2", Str, Salt)))    : ""
-    GuiControl,, MD4,  % CheckMD4  = "1" ? (DDL = "2" ? MD4FromFile(Str)    : (Check = "0" ? MD4(Str)    : SecureSalted("MD4", Str, Salt)))    : ""
-    GuiControl,, MD5,  % CheckMD5  = "1" ? (DDL = "2" ? MD5FromFile(Str)    : (Check = "0" ? MD5(Str)    : SecureSalted("MD5", Str, Salt)))    : ""
-    GuiControl,, SHA,  % CheckSHA  = "1" ? (DDL = "2" ? SHAFromFile(Str)    : (Check = "0" ? SHA(Str)    : SecureSalted("SHA", Str, Salt)))    : ""
-    GuiControl,, SHA2, % CheckSHA2 = "1" ? (DDL = "2" ? SHA256FromFile(Str) : (Check = "0" ? SHA256(Str) : SecureSalted("SHA256", Str, Salt))) : ""
-    GuiControl,, SHA3, % CheckSHA3 = "1" ? (DDL = "2" ? SHA384FromFile(Str) : (Check = "0" ? SHA384(Str) : SecureSalted("SHA384", Str, Salt))) : ""
-    GuiControl,, SHA5, % CheckSHA5 = "1" ? (DDL = "2" ? SHA512FromFile(Str) : (Check = "0" ? SHA512(Str) : SecureSalted("SHA512", Str, Salt))) : ""
+    GuiControl,, MD2,  % CheckMD2  = "1" ? (DDL = "2" ? FileMD2(Str)    : (Check = "0" ? MD2(Str)    : SecureSalted("MD2", Str, Salt)))    : ""
+    GuiControl,, MD4,  % CheckMD4  = "1" ? (DDL = "2" ? FileMD4(Str)    : (Check = "0" ? MD4(Str)    : SecureSalted("MD4", Str, Salt)))    : ""
+    GuiControl,, MD5,  % CheckMD5  = "1" ? (DDL = "2" ? FileMD5(Str)    : (Check = "0" ? MD5(Str)    : SecureSalted("MD5", Str, Salt)))    : ""
+    GuiControl,, SHA,  % CheckSHA  = "1" ? (DDL = "2" ? FileSHA(Str)    : (Check = "0" ? SHA(Str)    : SecureSalted("SHA", Str, Salt)))    : ""
+    GuiControl,, SHA2, % CheckSHA2 = "1" ? (DDL = "2" ? FileSHA256(Str) : (Check = "0" ? SHA256(Str) : SecureSalted("SHA256", Str, Salt))) : ""
+    GuiControl,, SHA3, % CheckSHA3 = "1" ? (DDL = "2" ? FileSHA384(Str) : (Check = "0" ? SHA384(Str) : SecureSalted("SHA384", Str, Salt))) : ""
+    GuiControl,, SHA5, % CheckSHA5 = "1" ? (DDL = "2" ? FileSHA512(Str) : (Check = "0" ? SHA512(Str) : SecureSalted("SHA512", Str, Salt))) : ""
 return
 
 Clear:
@@ -180,139 +180,141 @@ SecureSalted(algo, data, salt)
 }
 
 ; MD2 ===============================================================================
-MD2(string)
+MD2(string, encoding = "UTF-8")
 {
-    return HashFromString(string, 0x8001)
+    return CalcStringHash(string, 0x8001, encoding)
 }
-MD2FromFile(filename)
+FileMD2(filename)
 {
-    return HashFromFile(filename, 0x8001)
+    return CalcFileHash(filename, 0x8001, 64 * 1024)
 }
 ; MD4 ===============================================================================
-MD4(string)
+MD4(string, encoding = "UTF-8")
 {
-    return HashFromString(string, 0x8002)
+    return CalcStringHash(string, 0x8002, encoding)
 }
-MD4FromFile(filename)
+FileMD4(filename)
 {
-    return HashFromFile(filename, 0x8002)
+    return CalcFileHash(filename, 0x8002, 64 * 1024)
 }
 ; MD5 ===============================================================================
-MD5(string)
+MD5(string, encoding = "UTF-8")
 {
-    return HashFromString(string, 0x8003)
+    return CalcStringHash(string, 0x8003, encoding)
 }
-MD5FromFile(filename)
+FileMD5(filename)
 {
-    return HashFromFile(filename, 0x8003)
+    return CalcFileHash(filename, 0x8003, 64 * 1024)
 }
 ; SHA ===============================================================================
-SHA(string)
+SHA(string, encoding = "UTF-8")
 {
-    return HashFromString(string, 0x8004)
+    return CalcStringHash(string, 0x8004, encoding)
 }
-SHAFromFile(filename)
+FileSHA(filename)
 {
-    return HashFromFile(filename, 0x8004)
+    return CalcFileHash(filename, 0x8004, 64 * 1024)
 }
 ; SHA256 ============================================================================
-SHA256(string)
+SHA256(string, encoding = "UTF-8")
 {
-    return HashFromString(string, 0x800c)
+    return CalcStringHash(string, 0x800c, encoding)
 }
-SHA256FromFile(filename)
+FileSHA256(filename)
 {
-    return HashFromFile(filename, 0x800c)
+    return CalcFileHash(filename, 0x800c, 64 * 1024)
 }
 ; SHA384 ============================================================================
-SHA384(string)
+SHA384(string, encoding = "UTF-8")
 {
-    return HashFromString(string, 0x800d)
+    return CalcStringHash(string, 0x800d, encoding)
 }
-SHA384FromFile(filename)
+FileSHA384(filename)
 {
-    return HashFromFile(filename, 0x800d)
+    return CalcFileHash(filename, 0x800d, 64 * 1024)
 }
 ; SHA512 ============================================================================
-SHA512(string)
+SHA512(string, encoding = "UTF-8")
 {
-    return HashFromString(string, 0x800e)
+    return CalcStringHash(string, 0x800e, encoding)
 }
-SHA512FromFile(filename)
+FileSHA512(filename)
 {
-    return HashFromFile(filename, 0x800e)
+    return CalcFileHash(filename, 0x800e, 64 * 1024)
 }
 
-; HashFromAddr ======================================================================
-HashFromAddr(pData, len, algid, key = 0)
+; CalcAddrHash ======================================================================
+CalcAddrHash(addr, length, algid, byref hash = 0, byref hashlength = 0)
 {
-    hProv := size := hHash := hash := ""
-    ptr := (A_PtrSize) ? "Ptr" : "UInt"
-    aw := (A_IsUnicode) ? "W" : "A"
-    if (DllCall("advapi32\CryptAcquireContext", "Ptr*", hProv, "Ptr", 0, "Ptr", 0, "Uint", 24, "UInt", 0xF0000000))
+    static h := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f"]
+    static b := h.minIndex()
+    hProv := hHash := o := ""
+    if (DllCall("advapi32\CryptAcquireContext", "Ptr*", hProv, "Ptr", 0, "Ptr", 0, "UInt", 24, "UInt", 0xF0000000))
     {
-        if (DllCall("advapi32\CryptCreateHash", "Ptr", hProv, "Uint", algid, "Uint", 0, "Uint", 0, "Ptr*", hHash))
+        if (DllCall("advapi32\CryptCreateHash", "Ptr", hProv, "UInt", algid, "UInt", 0, "UInt", 0, "Ptr*", hHash))
         {
-            if (DllCall("advapi32\CryptHashData", "Ptr", hHash, "Ptr", pData, "Uint", len, "Uint", 0))
+            if (DllCall("advapi32\CryptHashData", "Ptr", hHash, "Ptr", addr, "UInt", length, "UInt", 0))
             {
-                if (DllCall("advapi32\CryptGetHashParam", "Ptr", hHash, "Uint", 2, "Ptr", 0, "Uint*", size, "Uint", 0))
+                if (DllCall("advapi32\CryptGetHashParam", "Ptr", hHash, "UInt", 2, "Ptr", 0, "UInt*", hashlength, "UInt", 0))
                 {
-                    VarSetCapacity(bhash, size, 0)
-                    DllCall("advapi32\CryptGetHashParam", "Ptr", hHash, "Uint", 2, "Ptr", &bhash, "Uint*", size, "Uint", 0)
+                    VarSetCapacity(hash, hashlength, 0)
+                    if (DllCall("advapi32\CryptGetHashParam", "Ptr", hHash, "UInt", 2, "Ptr", &hash, "UInt*", hashlength, "UInt", 0))
+                    {
+                        loop, % hashlength
+                        {
+                            v := NumGet(hash, A_Index - 1, "UChar")
+                            o .= h[(v >> 4) + b] h[(v & 0xf) + b]
+                        }
+                    }
                 }
             }
             DllCall("advapi32\CryptDestroyHash", "Ptr", hHash)
         }
-        DllCall("advapi32\CryptReleaseContext", "Ptr", hProv, "Uint", 0)
+        DllCall("advapi32\CryPtreleaseContext", "Ptr", hProv, "UInt", 0)
     }
-    int := A_FormatInteger
-    SetFormat, Integer, h
-    loop, % size
-    {
-        v := substr(NumGet(bhash, A_Index - 1, "UChar") "", 3)
-        while (StrLen(v) < 2)
-        {
-            v := "0" v
-        }
-        hash .= v
-    }
-    SetFormat, Integer, % int
-    return hash
+    return o
 }
 
-; HashFromString ====================================================================
-HashFromString(string, algid, key = 0)
+; CalcStringHash ====================================================================
+CalcStringHash(string, algid, encoding = "UTF-8", byref hash = 0, byref hashlength = 0)
 {
-    len := StrLen(string)
-    if (A_IsUnicode)
-    {
-        VarSetCapacity(data, len)
-        StrPut := "StrPut"
-        %StrPut%(string, &data, len, "cp0")
-        return HashFromAddr(&data, len, algid, key)
-    }
-    data := string
-    return HashFromAddr(&data, len, algid, key)
+    chrlength := (encoding = "CP1200" || encoding = "UTF-16") ? 2 : 1
+    length := (StrPut(string, encoding) - 1) * chrlength
+    VarSetCapacity(data, length, 0)
+    StrPut(string, &data, floor(length / chrlength), encoding)
+    return CalcAddrHash(&data, length, algid, hash, hashlength)
 }
 
-; HashFromFile ======================================================================
-HashFromFile(filename, algid, key = 0)
+; CalcFileHash ======================================================================
+CalcFileHash(filename, algid, continue = 0, byref hash = 0, byref hashlength = 0)
 {
-    size := ""
-    ptr := (A_PtrSize) ? "Ptr" : "UInt"
-    if ((hFile := DllCall("CreateFile", "Str", filename, "UInt", 0x80000000, "UInt", 1, ptr, 0, "UInt", 3, "UInt", 0, ptr, 0, ptr)) != 0)
-	{
-        if ((DllCall("GetFileSizeEx", ptr, hFile, "UInt64*", size)) && (size > 0) && (size <= 0xFFFFFFFF))
-		{
-            VarSetCapacity(data, size)
-            if (DllCall("ReadFile", ptr, hFile, ptr, &data, "UInt", size, ptr "*", 0, ptr, 0))
-			{
-				hash := HashFromAddr(&data, size, algid, key)
-			}
-        }
-        DllCall("CloseHandle", ptr, hFile)
+    fpos := ""
+    if (!(f := FileOpen(filename, "r")))
+    {
+        return
     }
-    return hash
+    f.pos := 0
+    if (!continue && f.length > 0x7fffffff)
+    {
+        return
+    }
+    if (!continue)
+    {
+        VarSetCapacity(data, f.length, 0)
+        f.rawRead(&data, f.length)
+        f.pos := oldpos
+        return CalcAddrHash(&data, f.length, algid, hash, hashlength)
+    }
+    hashlength := 0
+    while (f.pos < f.length)
+    {
+        readlength := (f.length - fpos > continue) ? continue : f.length - f.pos
+        VarSetCapacity(data, hashlength + readlength, 0)
+        DllCall("RtlMoveMemory", "Ptr", &data, "Ptr", &hash, "Ptr", hashlength)
+        f.rawRead(&data + hashlength, readlength)
+        h := CalcAddrHash(&data, hashlength + readlength, algid, hash, hashlength)
+    }
+    return h
 }
 
 
