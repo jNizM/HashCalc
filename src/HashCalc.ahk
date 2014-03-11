@@ -8,7 +8,7 @@
 ; License .......: WTFPL
 ; License URL ...: http://www.wtfpl.net/txt/copying/
 ; ===================================================================================
-;@Ahk2Exe-SetName HashCalc v0.4
+;@Ahk2Exe-SetName HashCalc v0.5
 ;@Ahk2Exe-SetDescription HashCalc
 ;@Ahk2Exe-SetVersion 2013.12.30-1545
 ;@Ahk2Exe-SetCopyright Copyright (c) 2013`, jNizM
@@ -71,8 +71,14 @@ Gui, Add, Button, xm+337 ym+379 w80 -Theme 0x8000 gCalculate, Calculate
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClear, Clear
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClose, Close
 
-Gui, Show, AutoSize, HashCalc v0.4
+Gui, Show, AutoSize, HashCalc v0.5
 SetTimer, CheckEdit, 100
+return
+
+GuiDropFiles:
+    FilePath := A_GuiEvent
+    GuiControl,, Str, % FilePath
+    GuiControl, Choose, DDL, 2
 return
 
 CheckEdit:

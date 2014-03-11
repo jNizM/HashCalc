@@ -21,11 +21,12 @@ Calculate hash from string or file via AutoHotkey
 
 
 ## Info
-* Version: v0.4
+* Version: v0.5
 * URL: [AHK Thread](http://ahkscript.org/boards/viewtopic.php?f=6&t=87)
 
 
 ## Changelog
+* 0.5 | Added Drag&Drop File into Gui
 * 0.4 | Changed Hash functions to CalcAddrHash(), CalcStringHash() & CalcFileHash()
 * 0.3 | Added Disable Salt if 'File' is active
 * 0.2 | Added HashFromFile(), Checkbox
