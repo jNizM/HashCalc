@@ -3,14 +3,14 @@
 ; Win Version ...: Windows 7 Professional x64 SP1
 ; Description ...: Calculate hash from string or file to
 ;                  MD2, MD4, MD5, SHA1, SHA-256, SHA-384, SHA-512
-; Version .......: 2013.12.17-1733
+; Version .......: 2013.12.30-1545
 ; Author ........: jNizM
 ; License .......: WTFPL
 ; License URL ...: http://www.wtfpl.net/txt/copying/
 ; ===================================================================================
-;@Ahk2Exe-SetName HashCalc v0.2
+;@Ahk2Exe-SetName HashCalc v0.3
 ;@Ahk2Exe-SetDescription HashCalc
-;@Ahk2Exe-SetVersion 2013.12.17-1733
+;@Ahk2Exe-SetVersion 2013.12.30-1545
 ;@Ahk2Exe-SetCopyright Copyright (c) 2013`, jNizM
 ;@Ahk2Exe-SetOrigFilename HashCalc.ahk
 ; ===================================================================================
@@ -71,7 +71,7 @@ Gui, Add, Button, xm+337 ym+379 w80 -Theme 0x8000 gCalculate, Calculate
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClear, Clear
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClose, Close
 
-Gui, Show, AutoSize, HashCalc v0.2
+Gui, Show, AutoSize, HashCalc v0.3
 SetTimer, CheckEdit, 100
 return
 
@@ -79,6 +79,7 @@ CheckEdit:
     Gui, Submit, NoHide
     GuiControl, % Check = "0" ? "Disable" : "Enable",  Salt
     GuiControl, % DDL   = "2" ? "Disable" : "Enable",  Check
+    GuiControl, % DDL   = "2" ? "Disable" : "Enable",  Salt
     GuiControl, % DDL   = "2" ? "Enable"  : "Disable", File
     GuiControl, % MD2   = ""  ? "Disable" : "Enable",  CopyMD2
     GuiControl, % MD4   = ""  ? "Disable" : "Enable",  CopyMD4
