@@ -4,13 +4,13 @@
 ; Description ...: Calculate hash from string, hex or file to
 ;                  MD2, MD4, MD5, SHA1, SHA-256, SHA-384, SHA-512
 ;                  HMAC
-; Version .......: v0.8
+; Version .......: v0.9
 ; Modified ......: 2014.03.10-1959
 ; Author ........: jNizM
 ; ===================================================================================
 ;@Ahk2Exe-SetName HashCalc
 ;@Ahk2Exe-SetDescription HashCalc
-;@Ahk2Exe-SetVersion v0.8
+;@Ahk2Exe-SetVersion v0.9
 ;@Ahk2Exe-SetCopyright Copyright (c) 2013-2014`, jNizM
 ;@Ahk2Exe-SetOrigFilename HashCalc.ahk
 ; ===================================================================================
@@ -23,7 +23,7 @@
 SetBatchLines, -1
 
 global name        := "HashCalc"
-global version     := "v0.8"
+global version     := "v0.9"
 global love        := chr(9829)
 global copyright   := chr(169)
 
@@ -40,7 +40,11 @@ Gui, Add, Checkbox, xm y+6 w100 h23 vCheck, HMAC
 Gui, Add, Edit, x+10 yp w390 vHMAC,
 Gui, Add, Text, xm y+10 w586 h1 0x10
 
-Gui, Add, Checkbox, xm y+10 w100 h23 vCheckMD2, MD2
+Gui, Add, Checkbox, xm y+10 w100 h23 vCheckCRC32, CRC32
+Gui, Add, Edit, x+10 yp w390 0x800 vCRC32,
+Gui, Add, Button, x+3 yp w80 h23 gCopyCRC32 vCopyCRC32, Copy
+
+Gui, Add, Checkbox, xm y+6 w100 h23 vCheckMD2, MD2
 Gui, Add, Edit, x+10 yp w390 0x800 vMD2,
 Gui, Add, Button, x+3 yp w80 h23 gCopyMD2 vCopyMD2, Copy
 
@@ -112,6 +116,8 @@ CheckEdit:
         GuiControl, % DDL   = "3" ? "Disable" : "Enable",  Check
         GuiControl, % DDL   = "3" ? "Enable"  : "Disable", File
     }
+    GuiControl, % Check = "1" ? "Disable" : "Enable",  CheckCRC32
+    GuiControl, % CRC32 = ""  ? "Disable" : "Enable",  CopyCRC32
     GuiControl, % MD2   = ""  ? "Disable" : "Enable",  CopyMD2
     GuiControl, % MD4   = ""  ? "Disable" : "Enable",  CopyMD4
     GuiControl, % MD5   = ""  ? "Disable" : "Enable",  CopyMD5
@@ -129,18 +135,20 @@ return
 
 Calculate:
     Gui, Submit, NoHide
-    GuiControl,, MD2,  % ((CheckMD2  = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD2(Str))    : (HMAC(HMAC, Str, "MD2")))    : ((DDL = "2") ? (HexMD2(Str))    : (FileMD2(Str))))    : (""))
-    GuiControl,, MD4,  % ((CheckMD4  = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD4(Str))    : (HMAC(HMAC, Str, "MD4")))    : ((DDL = "2") ? (HexMD4(Str))    : (FileMD4(Str))))    : (""))
-    GuiControl,, MD5,  % ((CheckMD5  = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD5(Str))    : (HMAC(HMAC, Str, "MD5")))    : ((DDL = "2") ? (HexMD5(Str))    : (FileMD5(Str))))    : (""))
-    GuiControl,, SHA,  % ((CheckSHA  = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA(Str))    : (HMAC(HMAC, Str, "SHA")))    : ((DDL = "2") ? (HexSHA(Str))    : (FileSHA(Str))))    : (""))
-    GuiControl,, SHA2, % ((CheckSHA2 = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA256(Str)) : (HMAC(HMAC, Str, "SHA256"))) : ((DDL = "2") ? (HexSHA256(Str)) : (FileSHA256(Str)))) : (""))
-    GuiControl,, SHA3, % ((CheckSHA3 = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA384(Str)) : (HMAC(HMAC, Str, "SHA384"))) : ((DDL = "2") ? (HexSHA384(Str)) : (FileSHA384(Str)))) : (""))
-    GuiControl,, SHA5, % ((CheckSHA5 = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA512(Str)) : (HMAC(HMAC, Str, "SHA512"))) : ((DDL = "2") ? (HexSHA512(Str)) : (FileSHA512(Str)))) : (""))
+    GuiControl,, CRC32, % ((CheckCRC32 = "1") ? ((DDL = "1") ? ((Check = "0") ? (CRC32(Str))  : "")                          : ((DDL = "2") ? (HexCRC32(Str))  : (FileCRC32(Str))))  : (""))
+    GuiControl,, MD2,   % ((CheckMD2   = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD2(Str))    : (HMAC(HMAC, Str, "MD2")))    : ((DDL = "2") ? (HexMD2(Str))    : (FileMD2(Str))))    : (""))
+    GuiControl,, MD4,   % ((CheckMD4   = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD4(Str))    : (HMAC(HMAC, Str, "MD4")))    : ((DDL = "2") ? (HexMD4(Str))    : (FileMD4(Str))))    : (""))
+    GuiControl,, MD5,   % ((CheckMD5   = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD5(Str))    : (HMAC(HMAC, Str, "MD5")))    : ((DDL = "2") ? (HexMD5(Str))    : (FileMD5(Str))))    : (""))
+    GuiControl,, SHA,   % ((CheckSHA   = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA(Str))    : (HMAC(HMAC, Str, "SHA")))    : ((DDL = "2") ? (HexSHA(Str))    : (FileSHA(Str))))    : (""))
+    GuiControl,, SHA2,  % ((CheckSHA2  = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA256(Str)) : (HMAC(HMAC, Str, "SHA256"))) : ((DDL = "2") ? (HexSHA256(Str)) : (FileSHA256(Str)))) : (""))
+    GuiControl,, SHA3,  % ((CheckSHA3  = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA384(Str)) : (HMAC(HMAC, Str, "SHA384"))) : ((DDL = "2") ? (HexSHA384(Str)) : (FileSHA384(Str)))) : (""))
+    GuiControl,, SHA5,  % ((CheckSHA5  = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA512(Str)) : (HMAC(HMAC, Str, "SHA512"))) : ((DDL = "2") ? (HexSHA512(Str)) : (FileSHA512(Str)))) : (""))
 return
 
 Clear:
     GuiControl,, Str,
     GuiControl,, HMAC,
+    GuiControl,, CRC32,
     GuiControl,, MD2,
     GuiControl,, MD4,
     GuiControl,, MD5,
@@ -153,11 +161,14 @@ return
 
 VerifyHash:
     Gui, Submit, NoHide
-    Result := Hashify(Verify, MD2, MD4, MD5, SHA, SHA2, SHA3, SHA5)
+    Result := Hashify(Verify, CRC32, MD2, MD4, MD5, SHA, SHA2, SHA3, SHA5)
     GuiControl, % (InStr(Result, "OK") ? "+c008000" : "+c800000"), HashOK
     GuiControl,, HashOk, %Result%
 return
 
+CopyCRC32:
+    Clipboard := CRC32
+return
 CopyMD2:
     Clipboard := MD2
 return
@@ -183,16 +194,17 @@ return
 ; FUNCTIONS =========================================================================
 
 ; Verify ============================================================================
-Hashify(Hash, MD2, MD4, MD5, SHA, SHA2, SHA3, SHA5)
+Hashify(Hash, CRC32, MD2, MD4, MD5, SHA, SHA2, SHA3, SHA5)
 {
-    return % (Hash = "") ? ""
-           : (Hash = MD2) ? ("MD2 OK")
-           : (Hash = MD4) ? ("MD4 OK")
-           : (Hash = MD5) ? ("MD5 OK")
-           : (Hash = SHA) ? ("SHA1 OK")
-           : (Hash = SHA2) ? ("SHA256 OK")
-           : (Hash = SHA3) ? ("SHA384 OK")
-           : (Hash = SHA5) ? ("SHA512 OK")
+    return % (Hash = "")    ? ""
+           : (Hash = CRC32) ? ("CRC32 OK")
+           : (Hash = MD2)   ? ("MD2 OK")
+           : (Hash = MD4)   ? ("MD4 OK")
+           : (Hash = MD5)   ? ("MD5 OK")
+           : (Hash = SHA)   ? ("SHA1 OK")
+           : (Hash = SHA2)  ? ("SHA256 OK")
+           : (Hash = SHA3)  ? ("SHA384 OK")
+           : (Hash = SHA5)  ? ("SHA512 OK")
            : "FALSE"
 }
 
@@ -435,6 +447,67 @@ CalcFileHash(filename, algid, continue = 0, byref hash = 0, byref hashlength = 0
         h := CalcAddrHash(&data, hashlength + readlength, algid, hash, hashlength)
     }
     return h
+}
+
+; CRC32 =============================================================================
+CRC32(string, encoding = "UTF-8")
+{
+    chrlength := (encoding = "CP1200" || encoding = "UTF-16") ? 2 : 1
+    length := (StrPut(string, encoding) - 1) * chrlength
+    VarSetCapacity(data, length, 0)
+    StrPut(string, &data, floor(length / chrlength), encoding)
+    hMod := DllCall("Kernel32.dll\LoadLibrary", "Str", "Ntdll.dll")
+    SetFormat, Integer, % SubStr((A_FI := A_FormatInteger) "H", 0)
+    CRC := DllCall("Ntdll.dll\RtlComputeCrc32", "UInt", 0, "UInt", &data, "UInt", length, "UInt")
+    o := SubStr(CRC | 0x1000000000, -7)
+    DllCall("User32.dll\CharLower", "Str", o)
+    SetFormat, Integer, %A_FI%
+    return o, DllCall("Kernel32.dll\FreeLibrary", "Ptr", hMod)
+}
+
+; HexCRC32 ==========================================================================
+HexCRC32(hexstring)
+{
+    length := StrLen(hexstring) // 2
+    VarSetCapacity(data, length, 0)
+    loop % length
+    {
+        NumPut("0x" SubStr(hexstring, 2 * A_Index -1, 2), data, A_Index - 1, "Char")
+    }
+    hMod := DllCall("Kernel32.dll\LoadLibrary", "Str", "Ntdll.dll")
+    SetFormat, Integer, % SubStr((A_FI := A_FormatInteger) "H", 0)
+    CRC := DllCall("Ntdll.dll\RtlComputeCrc32", "UInt", 0, "UInt", &data, "UInt", length, "UInt")
+    o := SubStr(CRC | 0x1000000000, -7)
+    DllCall("User32.dll\CharLower", "Str", o)
+    SetFormat, Integer, %A_FI%
+    return o, DllCall("Kernel32.dll\FreeLibrary", "Ptr", hMod)
+}
+
+; FileCRC32 =========================================================================
+FileCRC32(sFile := "", cSz := 4)
+{
+    Bytes := ""
+    cSz := (cSz < 0 || cSz > 8) ? 2**22 : 2**(18 + cSz)
+    VarSetCapacity(Buffer, cSz, 0)
+    hFil := DllCall("Kernel32.dll\CreateFile", "Str", sFile, "UInt", 0x80000000, "UInt", 3, "Int", 0, "UInt", 3, "UInt", 0, "Int", 0, "UInt")
+    if (hFil < 1)
+    {
+        return hFil
+    }
+    hMod := DllCall("Kernel32.dll\LoadLibrary", "Str", "Ntdll.dll")
+    CRC := 0
+    DllCall("Kernel32.dll\GetFileSizeEx", "UInt", hFil, "Int64", &Buffer), fSz := NumGet(Buffer, 0, "Int64")
+    loop % (fSz // cSz + !!Mod(fSz, cSz))
+    {
+        DllCall("Kernel32.dll\ReadFile", "UInt", hFil, "Ptr", &Buffer, "UInt", cSz, "UInt*", Bytes, "UInt", 0)
+        CRC := DllCall("Ntdll.dll\RtlComputeCrc32", "UInt", CRC, "UInt", &Buffer, "UInt", Bytes, "UInt")
+    }
+    DllCall("Kernel32.dll\CloseHandle", "Ptr", hFil)
+    SetFormat, Integer, % SubStr((A_FI := A_FormatInteger) "H", 0)
+    CRC := SubStr(CRC + 0x1000000000, -7)
+    DllCall("User32.dll\CharLower", "Str", CRC)
+    SetFormat, Integer, %A_FI%
+    return CRC, DllCall("Kernel32.dll\FreeLibrary", "Ptr", hMod)
 }
 
 

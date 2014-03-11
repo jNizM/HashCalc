@@ -8,6 +8,7 @@ Calculate hash from string, hex or file via AutoHotkey
 * Verify hash
 
 ### Hash Functions
+* CRC32
 * MD2, MD4, MD5
 * SHA-1
 * SHA-256, SHA-384, SHA-512
@@ -18,11 +19,12 @@ Calculate hash from string, hex or file via AutoHotkey
 
 
 ## Info
-* Version: v0.8
+* Version: v0.9
 * URL: [AHK Thread](http://ahkscript.org/boards/viewtopic.php?f=6&t=87)
 
 
 ## Changelog
+* 0.9 | Added hash function CRC32
 * 0.8 | Bug fixes and improvements
 * 0.7 | Added CalcHexHash()
 * 0.6 | Change Salt to HMAC funtion
@@ -36,5 +38,6 @@ Calculate hash from string, hex or file via AutoHotkey
 ## Contributing
 * thanks to Bentschi for his functions CalcAddrHash(), CalcStringHash() & CalcFileHash()
 * thanks to atnbueno for CalcHexHash()
+* thanks to SKAN for his functions CRC() & FileCRC32()
 * thanks to just me for his translated function HMAC()
 * thanks to AutoHotkey Community
