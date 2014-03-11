@@ -8,24 +8,25 @@ Calculate hash from string or file via AutoHotkey
 * Verify hash
 
 ### Hash Functions
-* MD2
-* MD4
-* MD5
-* SHA-1
-* SHA-256
-* SHA-384
-* SHA-512
+* MD2 (+ HMAC)
+* MD4 (+ HMAC)
+* MD5 (+ HMAC)
+* SHA-1 (+ HMAC)
+* SHA-256 (+ HMAC)
+* SHA-384 (+ HMAC)
+* SHA-512 (+ HMAC)
 
 ## Screenshot
 ![Screenshot](Screenshot.png)
 
 
 ## Info
-* Version: v0.5
+* Version: v0.6
 * URL: [AHK Thread](http://ahkscript.org/boards/viewtopic.php?f=6&t=87)
 
 
 ## Changelog
+* 0.6 | Change Salt to HMAC funtion
 * 0.5 | Added Drag&Drop File into Gui
 * 0.4 | Changed Hash functions to CalcAddrHash(), CalcStringHash() & CalcFileHash()
 * 0.3 | Added Disable Salt if 'File' is active
@@ -35,5 +36,5 @@ Calculate hash from string or file via AutoHotkey
 
 ## Contributing
 * thanks to Bentschi for his functions CalcAddrHash(), CalcStringHash() & CalcFileHash()
-* thanks to IsNull for his function SecureSalted()
+* thanks to just me for his translated function HMAC()
 * thanks to AutoHotkey Community
