@@ -1,9 +1,9 @@
 # HashCalc by jNizM
-Calculate hash from string via AutoHotkey
+Calculate hash from string or file via AutoHotkey
 
 
 ## Features
-* Generate hash value from string
+* Generate hash value from string or file
 * Secure-Salted function
 * Verify hash
 
@@ -21,11 +21,12 @@ Calculate hash from string via AutoHotkey
 
 
 ## Info
-* Version: v0.1
+* Version: v0.2
 * URL: [AHK Thread](http://ahkscript.org/boards/viewtopic.php?f=6&t=87)
 
 
 ## Changelog
+* 0.2 | Added HashFromFile(), Checkbox
 * 0.1 | First Release
 
 

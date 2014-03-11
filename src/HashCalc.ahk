@@ -1,16 +1,16 @@
 ﻿; ===================================================================================
 ; AHK Version ...: AHK_L 1.1.13.01 x64 Unicode
 ; Win Version ...: Windows 7 Professional x64 SP1
-; Description ...: Calculate hash from string to
+; Description ...: Calculate hash from string or file to
 ;                  MD2, MD4, MD5, SHA1, SHA-256, SHA-384, SHA-512
-; Version .......: 2013.12.17-1337
+; Version .......: 2013.12.17-1733
 ; Author ........: jNizM
 ; License .......: WTFPL
 ; License URL ...: http://www.wtfpl.net/txt/copying/
 ; ===================================================================================
-;@Ahk2Exe-SetName HashCalc v0.1
+;@Ahk2Exe-SetName HashCalc v0.2
 ;@Ahk2Exe-SetDescription HashCalc
-;@Ahk2Exe-SetVersion 2013.12.17-1337
+;@Ahk2Exe-SetVersion 2013.12.17-1733
 ;@Ahk2Exe-SetCopyright Copyright (c) 2013`, jNizM
 ;@Ahk2Exe-SetOrigFilename HashCalc.ahk
 ; ===================================================================================
@@ -20,6 +20,7 @@
 #Warn
 #NoEnv
 #SingleInstance Force
+SetBatchLines, -1
 
 ; SCRIPT ============================================================================
 love := chr(9829)
@@ -28,31 +29,32 @@ Gui, Margin, 10, 10
 Gui, Font, s9, Courier New
 Gui, Add, Text,   xm   ym     w100, Data Format:
 Gui, Add, Text,   x+10 ym     w390, Data:
-Gui, Add, DropDownList, xm ym+20  w100 AltSubmit vDDL, Text String||
+Gui, Add, DropDownList, xm ym+20  w100 AltSubmit vDDL, Text String||File
 Gui, Add, Edit,   x+10 ym+20  w390 vStr, AutoHotkey
+Gui, Add, Button, x+3  ym+20  w80 h23 -Theme 0x8000 gFile vFile, File
 Gui, Add, Checkbox, xm ym+50  w100 h23 vCheck, Salt Hash
 Gui, Add, Edit,   x+10 ym+50  w390 vSalt, Salt
 Gui, Add, Text,   xm   ym+85  w586 0x10
 
-Gui, Add, Text,   xm   ym+100 w100 h23 0x200, MD2
+Gui, Add, Checkbox,   xm   ym+100 w100 h23 vCheckMD2, MD2
 Gui, Add, Edit,   x+10 ym+100 w390 ReadOnly vMD2,
 Gui, Add, Button, x+3  ym+100 w80  h23 -Theme 0x8000 gCopyMD2 vCopyMD2, Copy
-Gui, Add, Text,   xm   ym+130 w100 h23 0x200, MD4
+Gui, Add, Checkbox,   xm   ym+130 w100 h23 vCheckMD4, MD4
 Gui, Add, Edit,   x+10 ym+130 w390 ReadOnly vMD4,
 Gui, Add, Button, x+3  ym+130 w80  h23 -Theme 0x8000 gCopyMD4 vCopyMD4, Copy
-Gui, Add, Text,   xm   ym+160 w100 h23 0x200, MD5
+Gui, Add, Checkbox,   xm   ym+160 w100 h23 Checked vCheckMD5, MD5
 Gui, Add, Edit,   x+10 ym+160 w390 ReadOnly vMD5,
 Gui, Add, Button, x+3  ym+160 w80  h23 -Theme 0x8000 gCopyMD5 vCopyMD5, Copy
-Gui, Add, Text,   xm   ym+190 w100 h23 0x200, SHA-1
+Gui, Add, Checkbox,   xm   ym+190 w100 h23 Checked vCheckSHA, SHA-1
 Gui, Add, Edit,   x+10 ym+190 w390 ReadOnly vSHA,
 Gui, Add, Button, x+3  ym+190 w80  h23 -Theme 0x8000 gCopySHA vCopySHA, Copy
-Gui, Add, Text,   xm   ym+220 w100 h23 0x200, SHA256
+Gui, Add, Checkbox,   xm   ym+220 w100 h23 vCheckSHA2, SHA256
 Gui, Add, Edit,   x+10 ym+220 w390 ReadOnly vSHA2,
 Gui, Add, Button, x+3  ym+220 w80  h23 -Theme 0x8000 gCopySHA2 vCopySHA2, Copy
-Gui, Add, Text,   xm   ym+250 w100 h23 0x200, SHA384
+Gui, Add, Checkbox,   xm   ym+250 w100 h23 vCheckSHA3, SHA384
 Gui, Add, Edit,   x+10 ym+250 w390 ReadOnly vSHA3,
 Gui, Add, Button, x+3  ym+250 w80  h23 -Theme 0x8000 gCopySHA3 vCopySHA3, Copy
-Gui, Add, Text,   xm   ym+280 w100 h23 0x200, SHA512
+Gui, Add, Checkbox,   xm   ym+280 w100 h23 vCheckSHA5, SHA512
 Gui, Add, Edit,   x+10 ym+280 w390 ReadOnly vSHA5,
 Gui, Add, Button, x+3  ym+280 w80  h23 -Theme 0x8000 gCopySHA5 vCopySHA5, Copy
 Gui, Add, Text,   xm   ym+315 w586 0x10
@@ -69,36 +71,39 @@ Gui, Add, Button, xm+337 ym+379 w80 -Theme 0x8000 gCalculate, Calculate
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClear, Clear
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClose, Close
 
-Gui, Show, AutoSize, HashCalc v0.1
+Gui, Show, AutoSize, HashCalc v0.2
 SetTimer, CheckEdit, 100
 return
 
 CheckEdit:
     Gui, Submit, NoHide
-    GuiControl, % Check = "0" ? "Disable" : "Enable", Salt
-    GuiControl, % DDL   = "2" ? "Disable" : "Enable", Check
-    GuiControl, % MD2   = ""  ? "Disable" : "Enable", CopyMD2
-    GuiControl, % MD4   = ""  ? "Disable" : "Enable", CopyMD4
-    GuiControl, % MD5   = ""  ? "Disable" : "Enable", CopyMD5
-    GuiControl, % SHA   = ""  ? "Disable" : "Enable", CopySHA
-    GuiControl, % SHA2  = ""  ? "Disable" : "Enable", CopySHA2
-    GuiControl, % SHA3  = ""  ? "Disable" : "Enable", CopySHA3
-    GuiControl, % SHA5  = ""  ? "Disable" : "Enable", CopySHA5
+    GuiControl, % Check = "0" ? "Disable" : "Enable",  Salt
+    GuiControl, % DDL   = "2" ? "Disable" : "Enable",  Check
+    GuiControl, % DDL   = "2" ? "Enable"  : "Disable", File
+    GuiControl, % MD2   = ""  ? "Disable" : "Enable",  CopyMD2
+    GuiControl, % MD4   = ""  ? "Disable" : "Enable",  CopyMD4
+    GuiControl, % MD5   = ""  ? "Disable" : "Enable",  CopyMD5
+    GuiControl, % SHA   = ""  ? "Disable" : "Enable",  CopySHA
+    GuiControl, % SHA2  = ""  ? "Disable" : "Enable",  CopySHA2
+    GuiControl, % SHA3  = ""  ? "Disable" : "Enable",  CopySHA3
+    GuiControl, % SHA5  = ""  ? "Disable" : "Enable",  CopySHA5
     Goto, VerifyHash
 return
 
+File:
+    FileSelectFile, File
+    GuiControl,, Str, %File%
+return
+
 Calculate:
-    GuiControlGet, DDL
-    GuiControlGet, Str
-    GuiControlGet, Check
-    GuiControlGet, Salt
-    GuiControl,, MD2,  % Check = "0" ? MD2(Str)    : SecureSalted("MD2", Str, Salt)
-    GuiControl,, MD4,  % Check = "0" ? MD4(Str)    : SecureSalted("MD4", Str, Salt)
-    GuiControl,, MD5,  % Check = "0" ? MD5(Str)    : SecureSalted("MD5", Str, Salt)
-    GuiControl,, SHA,  % Check = "0" ? SHA(Str)    : SecureSalted("SHA", Str, Salt)
-    GuiControl,, SHA2, % Check = "0" ? SHA256(Str) : SecureSalted("SHA256", Str, Salt)
-    GuiControl,, SHA3, % Check = "0" ? SHA384(Str) : SecureSalted("SHA384", Str, Salt)
-    GuiControl,, SHA5, % Check = "0" ? SHA512(Str) : SecureSalted("SHA512", Str, Salt)
+    Gui, Submit, NoHide
+    GuiControl,, MD2,  % CheckMD2  = "1" ? (DDL = "2" ? MD2FromFile(Str)    : (Check = "0" ? MD2(Str)    : SecureSalted("MD2", Str, Salt)))    : ""
+    GuiControl,, MD4,  % CheckMD4  = "1" ? (DDL = "2" ? MD4FromFile(Str)    : (Check = "0" ? MD4(Str)    : SecureSalted("MD4", Str, Salt)))    : ""
+    GuiControl,, MD5,  % CheckMD5  = "1" ? (DDL = "2" ? MD5FromFile(Str)    : (Check = "0" ? MD5(Str)    : SecureSalted("MD5", Str, Salt)))    : ""
+    GuiControl,, SHA,  % CheckSHA  = "1" ? (DDL = "2" ? SHAFromFile(Str)    : (Check = "0" ? SHA(Str)    : SecureSalted("SHA", Str, Salt)))    : ""
+    GuiControl,, SHA2, % CheckSHA2 = "1" ? (DDL = "2" ? SHA256FromFile(Str) : (Check = "0" ? SHA256(Str) : SecureSalted("SHA256", Str, Salt))) : ""
+    GuiControl,, SHA3, % CheckSHA3 = "1" ? (DDL = "2" ? SHA384FromFile(Str) : (Check = "0" ? SHA384(Str) : SecureSalted("SHA384", Str, Salt))) : ""
+    GuiControl,, SHA5, % CheckSHA5 = "1" ? (DDL = "2" ? SHA512FromFile(Str) : (Check = "0" ? SHA512(Str) : SecureSalted("SHA512", Str, Salt))) : ""
 return
 
 Clear:
@@ -178,35 +183,63 @@ MD2(string)
 {
     return HashFromString(string, 0x8001)
 }
+MD2FromFile(filename)
+{
+    return HashFromFile(filename, 0x8001)
+}
 ; MD4 ===============================================================================
 MD4(string)
 {
     return HashFromString(string, 0x8002)
+}
+MD4FromFile(filename)
+{
+    return HashFromFile(filename, 0x8002)
 }
 ; MD5 ===============================================================================
 MD5(string)
 {
     return HashFromString(string, 0x8003)
 }
+MD5FromFile(filename)
+{
+    return HashFromFile(filename, 0x8003)
+}
 ; SHA ===============================================================================
 SHA(string)
 {
     return HashFromString(string, 0x8004)
+}
+SHAFromFile(filename)
+{
+    return HashFromFile(filename, 0x8004)
 }
 ; SHA256 ============================================================================
 SHA256(string)
 {
     return HashFromString(string, 0x800c)
 }
+SHA256FromFile(filename)
+{
+    return HashFromFile(filename, 0x800c)
+}
 ; SHA384 ============================================================================
 SHA384(string)
 {
     return HashFromString(string, 0x800d)
 }
+SHA384FromFile(filename)
+{
+    return HashFromFile(filename, 0x800d)
+}
 ; SHA512 ============================================================================
 SHA512(string)
 {
     return HashFromString(string, 0x800e)
+}
+SHA512FromFile(filename)
+{
+    return HashFromFile(filename, 0x800e)
 }
 
 ; HashFromAddr ======================================================================
@@ -259,6 +292,26 @@ HashFromString(string, algid, key = 0)
     }
     data := string
     return HashFromAddr(&data, len, algid, key)
+}
+
+; HashFromFile ======================================================================
+HashFromFile(filename, algid, key = 0)
+{
+    size := ""
+    ptr := (A_PtrSize) ? "Ptr" : "UInt"
+    if ((hFile := DllCall("CreateFile", "Str", filename, "UInt", 0x80000000, "UInt", 1, ptr, 0, "UInt", 3, "UInt", 0, ptr, 0, ptr)) != 0)
+	{
+        if ((DllCall("GetFileSizeEx", ptr, hFile, "UInt64*", size)) && (size > 0) && (size <= 0xFFFFFFFF))
+		{
+            VarSetCapacity(data, size)
+            if (DllCall("ReadFile", ptr, hFile, ptr, &data, "UInt", size, ptr "*", 0, ptr, 0))
+			{
+				hash := HashFromAddr(&data, size, algid, key)
+			}
+        }
+        DllCall("CloseHandle", ptr, hFile)
+    }
+    return hash
 }
 
 
