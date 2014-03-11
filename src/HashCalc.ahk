@@ -1,15 +1,15 @@
 ﻿; ===================================================================================
 ; AHK Version ...: AHK_L 1.1.14.02 x64 Unicode
 ; Win Version ...: Windows 7 Professional x64 SP1
-; Description ...: Calculate hash from string or file to
+; Description ...: Calculate hash from string, hex or file to
 ;                  MD2, MD4, MD5, SHA1, SHA-256, SHA-384, SHA-512
 ;                  HMAC
-; Version .......: 2013.12.30-1545
+; Version .......: 2013.02.05-1148
 ; Author ........: jNizM
 ; ===================================================================================
-;@Ahk2Exe-SetName HashCalc v0.6
+;@Ahk2Exe-SetName HashCalc v0.7
 ;@Ahk2Exe-SetDescription HashCalc
-;@Ahk2Exe-SetVersion 2013.12.30-1545
+;@Ahk2Exe-SetVersion 2013.02.05-1148
 ;@Ahk2Exe-SetCopyright Copyright (c) 2013`, jNizM
 ;@Ahk2Exe-SetOrigFilename HashCalc.ahk
 ; ===================================================================================
@@ -22,17 +22,18 @@
 SetBatchLines, -1
 
 ; SCRIPT ============================================================================
-love := chr(9829)
+version := "v0.7"
+love    := chr(9829)
 
 Gui, Margin, 10, 10
 Gui, Font, s9, Courier New
 Gui, Add, Text,   xm   ym     w100, Data Format:
 Gui, Add, Text,   x+10 ym     w390, Data:
-Gui, Add, DropDownList, xm ym+20  w100 AltSubmit vDDL, Text String||File
-Gui, Add, Edit,   x+10 ym+20  w390 vStr, AutoHotkey
+Gui, Add, DropDownList, xm ym+20  w100 AltSubmit vDDL, Text String||Hex|File
+Gui, Add, Edit,   x+10 ym+20  w390 vStr,
 Gui, Add, Button, x+3  ym+20  w80 h23 -Theme 0x8000 gFile vFile, File
 Gui, Add, Checkbox, xm ym+50  w100 h23 vCheck, HMAC
-Gui, Add, Edit,   x+10 ym+50  w390 vHMAC, HMAC
+Gui, Add, Edit,   x+10 ym+50  w390 vHMAC,
 Gui, Add, Text,   xm   ym+85  w586 0x10
 
 Gui, Add, Checkbox,   xm   ym+100 w100 h23 vCheckMD2, MD2
@@ -70,7 +71,7 @@ Gui, Add, Button, xm+337 ym+379 w80 -Theme 0x8000 gCalculate, Calculate
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClear, Clear
 Gui, Add, Button, x+3    ym+379 w80 -Theme 0x8000 gClose, Close
 
-Gui, Show, AutoSize, HashCalc v0.6
+Gui, Show, AutoSize, HashCalc %version%
 SetTimer, CheckEdit, 100
 SetTimer, VerifyHash, 200
 return
@@ -78,16 +79,28 @@ return
 GuiDropFiles:
     FilePath := A_GuiEvent
     GuiControl,, Str, % FilePath
-    GuiControl, Choose, DDL, 2
+    GuiControl, Choose, DDL, 3
 return
 
 CheckEdit:
     Gui, Submit, NoHide
-    GuiControl, % DDL   = "2" ? "Disable" : "Enable",  HMAC
-    if !(DDL = 2)
+    if (DDL = 1)
+    {
         GuiControl, % Check = "0" ? "Disable" : "Enable",  HMAC
-    GuiControl, % DDL   = "2" ? "Disable" : "Enable",  Check
-    GuiControl, % DDL   = "2" ? "Enable"  : "Disable", File
+        GuiControl, % DDL   = "1" ? "Enable" : "Disable",  Check
+    }
+    if (DDL = 2)
+    {
+        GuiControl, % DDL   = "2" ? "Disable" : "Enable",  HMAC
+        GuiControl, % DDL   = "2" ? "Disable" : "Enable",  Check
+        GuiControl, % DDL   = "2" ? "Enable"  : "Disable", File
+    }
+    if (DDL = 3)
+    {
+        GuiControl, % DDL   = "3" ? "Disable" : "Enable",  HMAC
+        GuiControl, % DDL   = "3" ? "Disable" : "Enable",  Check
+        GuiControl, % DDL   = "3" ? "Enable"  : "Disable", File
+    }
     GuiControl, % MD2   = ""  ? "Disable" : "Enable",  CopyMD2
     GuiControl, % MD4   = ""  ? "Disable" : "Enable",  CopyMD4
     GuiControl, % MD5   = ""  ? "Disable" : "Enable",  CopyMD5
@@ -104,13 +117,13 @@ return
 
 Calculate:
     Gui, Submit, NoHide
-    GuiControl,, MD2,  % CheckMD2  = "1" ? (DDL = "2" ? FileMD2(Str)    : (Check = "0" ? MD2(Str)    : HMAC(HMAC, Str, "MD2")))    : ""
-    GuiControl,, MD4,  % CheckMD4  = "1" ? (DDL = "2" ? FileMD4(Str)    : (Check = "0" ? MD4(Str)    : HMAC(HMAC, Str, "MD4")))    : ""
-    GuiControl,, MD5,  % CheckMD5  = "1" ? (DDL = "2" ? FileMD5(Str)    : (Check = "0" ? MD5(Str)    : HMAC(HMAC, Str, "MD5")))    : ""
-    GuiControl,, SHA,  % CheckSHA  = "1" ? (DDL = "2" ? FileSHA(Str)    : (Check = "0" ? SHA(Str)    : HMAC(HMAC, Str, "SHA")))    : ""
-    GuiControl,, SHA2, % CheckSHA2 = "1" ? (DDL = "2" ? FileSHA256(Str) : (Check = "0" ? SHA256(Str) : HMAC(HMAC, Str, "SHA256"))) : ""
-    GuiControl,, SHA3, % CheckSHA3 = "1" ? (DDL = "2" ? FileSHA384(Str) : (Check = "0" ? SHA384(Str) : HMAC(HMAC, Str, "SHA384"))) : ""
-    GuiControl,, SHA5, % CheckSHA5 = "1" ? (DDL = "2" ? FileSHA512(Str) : (Check = "0" ? SHA512(Str) : HMAC(HMAC, Str, "SHA512"))) : ""
+    GuiControl,, MD2,  % ((CheckMD2  = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD2(Str))    : (HMAC(HMAC, Str, "MD2")))    : ((DDL = "2") ? (HexMD2(Str))    : (FileMD2(Str))))    : (""))
+    GuiControl,, MD4,  % ((CheckMD4  = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD4(Str))    : (HMAC(HMAC, Str, "MD4")))    : ((DDL = "2") ? (HexMD4(Str))    : (FileMD4(Str))))    : (""))
+    GuiControl,, MD5,  % ((CheckMD5  = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD5(Str))    : (HMAC(HMAC, Str, "MD5")))    : ((DDL = "2") ? (HexMD5(Str))    : (FileMD5(Str))))    : (""))
+    GuiControl,, SHA,  % ((CheckSHA  = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA(Str))    : (HMAC(HMAC, Str, "SHA")))    : ((DDL = "2") ? (HexSHA(Str))    : (FileSHA(Str))))    : (""))
+    GuiControl,, SHA2, % ((CheckSHA2 = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA256(Str)) : (HMAC(HMAC, Str, "SHA256"))) : ((DDL = "2") ? (HexSHA256(Str)) : (FileSHA256(Str)))) : (""))
+    GuiControl,, SHA3, % ((CheckSHA3 = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA384(Str)) : (HMAC(HMAC, Str, "SHA384"))) : ((DDL = "2") ? (HexSHA384(Str)) : (FileSHA384(Str)))) : (""))
+    GuiControl,, SHA5, % ((CheckSHA5 = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA512(Str)) : (HMAC(HMAC, Str, "SHA512"))) : ((DDL = "2") ? (HexSHA512(Str)) : (FileSHA512(Str)))) : (""))
 return
 
 Clear:
@@ -238,6 +251,10 @@ MD2(string, encoding = "UTF-8")
 {
     return CalcStringHash(string, 0x8001, encoding)
 }
+HexMD2(hexstring)
+{
+    return CalcHexHash(hexstring, 0x8001)
+}
 FileMD2(filename)
 {
     return CalcFileHash(filename, 0x8001, 64 * 1024)
@@ -246,6 +263,10 @@ FileMD2(filename)
 MD4(string, encoding = "UTF-8")
 {
     return CalcStringHash(string, 0x8002, encoding)
+}
+HexMD4(hexstring)
+{
+    return CalcHexHash(hexstring, 0x8002)
 }
 FileMD4(filename)
 {
@@ -256,6 +277,10 @@ MD5(string, encoding = "UTF-8")
 {
     return CalcStringHash(string, 0x8003, encoding)
 }
+HexMD5(hexstring)
+{
+    return CalcHexHash(hexstring, 0x8003)
+}
 FileMD5(filename)
 {
     return CalcFileHash(filename, 0x8003, 64 * 1024)
@@ -264,6 +289,10 @@ FileMD5(filename)
 SHA(string, encoding = "UTF-8")
 {
     return CalcStringHash(string, 0x8004, encoding)
+}
+HexSHA(hexstring)
+{
+    return CalcHexHash(hexstring, 0x8004)
 }
 FileSHA(filename)
 {
@@ -274,6 +303,10 @@ SHA256(string, encoding = "UTF-8")
 {
     return CalcStringHash(string, 0x800c, encoding)
 }
+HexSHA256(hexstring)
+{
+    return CalcHexHash(hexstring, 0x800c)
+}
 FileSHA256(filename)
 {
     return CalcFileHash(filename, 0x800c, 64 * 1024)
@@ -283,6 +316,10 @@ SHA384(string, encoding = "UTF-8")
 {
     return CalcStringHash(string, 0x800d, encoding)
 }
+HexSHA384(hexstring)
+{
+    return CalcHexHash(hexstring, 0x800d)
+}
 FileSHA384(filename)
 {
     return CalcFileHash(filename, 0x800d, 64 * 1024)
@@ -291,6 +328,10 @@ FileSHA384(filename)
 SHA512(string, encoding = "UTF-8")
 {
     return CalcStringHash(string, 0x800e, encoding)
+}
+HexSHA512(hexstring)
+{
+    return CalcHexHash(hexstring, 0x800e)
 }
 FileSHA512(filename)
 {
@@ -337,6 +378,18 @@ CalcStringHash(string, algid, encoding = "UTF-8", byref hash = 0, byref hashleng
     VarSetCapacity(data, length, 0)
     StrPut(string, &data, floor(length / chrlength), encoding)
     return CalcAddrHash(&data, length, algid, hash, hashlength)
+}
+
+; CalcHexHash =======================================================================
+CalcHexHash(hexstring, algid)
+{
+    length := StrLen(hexstring) // 2
+    VarSetCapacity(data, length, 0)
+    loop % length
+    {
+        NumPut("0x" SubStr(hexstring, 2 * A_Index -1, 2), data, A_Index - 1, "Char")
+    }
+    return, CalcAddrHash(&data, length, algid)
 }
 
 ; CalcFileHash ======================================================================
