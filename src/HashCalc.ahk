@@ -1,518 +1,503 @@
-﻿; ===================================================================================
-; AHK Version ...: AHK_L 1.1.14.03 x64 Unicode
-; Win Version ...: Windows 7 Professional x64 SP1
-; Description ...: Calculate hash from string, hex or file to
-;                  MD2, MD4, MD5, SHA1, SHA-256, SHA-384, SHA-512
-;                  HMAC
-; Version .......: v0.9
-; Modified ......: 2014.03.10-1959
-; Author ........: jNizM
-; ===================================================================================
-;@Ahk2Exe-SetName HashCalc
-;@Ahk2Exe-SetDescription HashCalc
-;@Ahk2Exe-SetVersion v0.9
-;@Ahk2Exe-SetCopyright Copyright (c) 2013-2014`, jNizM
-;@Ahk2Exe-SetOrigFilename HashCalc.ahk
-; ===================================================================================
+﻿; GLOBAL SETTINGS ===============================================================================================================
 
-; GLOBAL SETTINGS ===================================================================
-
-#Warn
 #NoEnv
 #SingleInstance Force
-SetBatchLines, -1
+#Persistent
 
-global name        := "HashCalc"
-global version     := "v0.9"
-global love        := chr(9829)
-global copyright   := chr(169)
+SetBatchLines -1
 
-; SCRIPT ============================================================================
+global app := { name: "HashCalc", version: "0.9.1", release: "2020-02-11", author: "jNizM", licence: "MIT" }
 
+
+; GUI ===========================================================================================================================
+
+Gui, +hWndhGuiMain
 Gui, Margin, 10, 10
-Gui, Font, s9, Courier New
-Gui, Add, Text, xm ym w100, Data Format:
-Gui, Add, Text, x+10 ym w390, Data:
-Gui, Add, DropDownList, xm y+6 w100 AltSubmit vDDL, Text String||Hex|File
-Gui, Add, Edit, x+10 yp w390 vStr,
-Gui, Add, Button, x+3 yp w80 h23 gFile vFile, File
-Gui, Add, Checkbox, xm y+6 w100 h23 vCheck, HMAC
-Gui, Add, Edit, x+10 yp w390 vHMAC,
-Gui, Add, Text, xm y+10 w586 h1 0x10
+Gui, Font, s9, Segoe UI
 
-Gui, Add, Checkbox, xm y+10 w100 h23 vCheckCRC32, CRC32
-Gui, Add, Edit, x+10 yp w390 0x800 vCRC32,
-Gui, Add, Button, x+3 yp w80 h23 gCopyCRC32 vCopyCRC32, Copy
+Gui, Add, Tab3,, % "Text|File|PBKDF2"
 
-Gui, Add, Checkbox, xm y+6 w100 h23 vCheckMD2, MD2
-Gui, Add, Edit, x+10 yp w390 0x800 vMD2,
-Gui, Add, Button, x+3 yp w80 h23 gCopyMD2 vCopyMD2, Copy
 
-Gui, Add, Checkbox, xm y+6 w100 h23 vCheckMD4, MD4
-Gui, Add, Edit, x+10 yp w390 0x800 vMD4,
-Gui, Add, Button, x+3 yp w80 h23 gCopyMD4 vCopyMD4, Copy
+Gui, Tab, 1
+Gui, Font, s9 norm, Segoe UI
+Gui, Add, Edit,     xs+10 y+15 w585 r5 gSTRING_CALCULATE vHASH_STRING
+Gui, Add, Text,     xs+10 y+7  w80 h23 0x200, % "HMAC"
+Gui, Add, Edit,     x+5   yp   w500 gSTRING_CALCULATE vHASH_HMAC
+Gui, Add, Text,     xs+10 y+10 w585 h1 0x5
+Gui, Add, Text,     xs+10 y+10 w80 h23, % "MD2"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_STRING_MD2
+Gui, Add, Text,     xs+10 y+7  w80 h23, % "MD4"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_STRING_MD4
+Gui, Add, Text,     xs+10 y+7  w80 h23, % "MD5"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_STRING_MD5
+Gui, Add, Text,     xs+10 y+7  w80 h23, % "SHA-1"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_STRING_SHA1
+Gui, Add, Text,     xs+10 y+7  w80 h23, % "SHA-256"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_STRING_SHA256
+Gui, Add, Text,     xs+10 y+7  w80 h23, % "SHA-384"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_STRING_SHA384
+Gui, Add, Text,     xs+10 y+7  w80 h23, % "SHA-512"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_STRING_SHA512
+Gui, Add, Text,     xs+10 y+10 w585 h1 0x5
+Gui, Add, Text,     xs+10 y+10 w80 h23 0x200, % "Verify"
+Gui, Add, Edit,     x+5   yp   w440 gSTRING_VERIFY vSTRING_VERIFY
+Gui, Add, Edit,     x+5   yp   w55 vSTRING_IS_VERIFY 0x800
 
-Gui, Add, Checkbox, xm y+6 w100 h23 Checked vCheckMD5, MD5
-Gui, Add, Edit, x+10 yp w390 0x800 vMD5,
-Gui, Add, Button, x+3 yp w80 h23 gCopyMD5 vCopyMD5, Copy
 
-Gui, Add, Checkbox, xm y+6 w100 h23 Checked vCheckSHA, SHA-1
-Gui, Add, Edit, x+10 yp w390 0x800 vSHA,
-Gui, Add, Button, x+3 yp w80 h23 gCopySHA vCopySHA, Copy
+Gui, Tab, 2
+Gui, Font, s9 norm, Segoe UI
+Gui, Add, Edit,     xs+10 y+15 w500 vHASH_FILE
+Gui, Add, Button,   x+6 yp-1 h25 w80 gFILE_GET, % "Browse"
+Gui, Font, s9 c696969, Segoe UI
+Gui, Add, Text,     xs+10 y+6  w500 h23 vHASH_FILE_SIZE 0x200, % "File Size:"
+Gui, Add, Button,   x+6 yp-1 h25 w80 gFILE_CALCULATE, % "Calculate"
+Gui, Font, s9 c000000, Segoe UI
+Gui, Add, Text,     xs+10 y+9 w585 h1 0x5
+Gui, Add, CheckBox, xs+10 y+10 w80 h23 vHASH_FILE_IS_MD2, % "MD2"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_FILE_MD2
+Gui, Add, CheckBox, xs+10 y+7  w80 h23 vHASH_FILE_IS_MD4, % "MD4"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_FILE_MD4
+Gui, Add, CheckBox, xs+10 y+7  w80 h23 vHASH_FILE_IS_MD5 Checked, % "MD5"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_FILE_MD5
+Gui, Add, CheckBox, xs+10 y+7  w80 h23 vHASH_FILE_IS_SHA1 Checked, % "SHA-1"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_FILE_SHA1
+Gui, Add, CheckBox, xs+10 y+7  w80 h23 vHASH_FILE_IS_SHA256 Checked, % "SHA-256"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_FILE_SHA256
+Gui, Add, CheckBox, xs+10 y+7  w80 h23 vHASH_FILE_IS_SHA384, % "SHA-384"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_FILE_SHA384
+Gui, Add, CheckBox, xs+10 y+7  w80 h23 vHASH_FILE_IS_SHA512, % "SHA-512"
+Gui, Add, Edit,     x+5   yp   w500 0x800 vHASH_FILE_SHA512
+Gui, Add, Text,     xs+10 y+10 w585 h1 0x5
+Gui, Add, Text,     xs+10 y+10 w80 h23 0x200, % "Verify"
+Gui, Add, Edit,     x+5   yp   w440 gFILE_VERIFY vFILE_VERIFY
+Gui, Add, Edit,     x+5   yp   w55 vFILE_IS_VERIFY 0x800
 
-Gui, Add, Checkbox, xm y+6 w100 h23 vCheckSHA2, SHA-256
-Gui, Add, Edit, x+10 yp w390 0x800 vSHA2,
-Gui, Add, Button, x+3 yp w80 h23 gCopySHA2 vCopySHA2, Copy
 
-Gui, Add, Checkbox, xm y+6 w100 h23 vCheckSHA3, SHA-384
-Gui, Add, Edit, x+10 yp w390 0x800 vSHA3,
-Gui, Add, Button, x+3 yp w80 h23 gCopySHA3 vCopySHA3, Copy
+Gui, Tab, 3
+Gui, Font, s9 norm, Segoe UI
+Gui, Add, Text,     xs+10 y+15 w80 h23 0x200, % "Password"
+Gui, Add, Edit,     x+5   yp   w500 gPBKDF2_CALCULATE vPBKDF2_PASSWORD
+Gui, Add, Text,     xs+10 y+7 w80 h23 0x200, % "Salt"
+Gui, Add, Edit,     x+5   yp   w500 gPBKDF2_CALCULATE vPBKDF2_SALT
+Gui, Add, Text,     xs+10 y+7 w80 h23 0x200, % "Iterations"
+Gui, Add, Edit,     x+5   yp   w500 gPBKDF2_CALCULATE vPBKDF2_ITERATIONS, % 4096
+Gui, Add, Text,     xs+10 y+7 w80 h23 0x200, % "KeyBitLength"
+Gui, Add, Edit,     x+5   yp   w500 gPBKDF2_CALCULATE vPBKDF2_KEYBITLENGTH, % 256
+Gui, Add, Text,     xs+10 y+7 w80 h23 0x200, % "Algorithm"
+Gui, Add, DropDownList, x+5 yp w500 gPBKDF2_CALCULATE vPBKDF2_ALGORITHM, % "MD2|MD4|MD5|SHA1|SHA256||SHA384|SHA512"
+Gui, Add, Text,     xs+10 y+10 w585 h1 0x5
+Gui, Add, Text,     xs+10 y+10 w80 h23 0x200, % "PBKDF2"
+Gui, Add, Edit,     x+5   yp   w500 r7 0x800 vPBKDF2
+Gui, Add, Text,     xs+10 y+10 w585 h1 0x5
+Gui, Add, Text,     xs+10 y+10 w80 h23 0x200, % "Verify"
+Gui, Add, Edit,     x+5   yp   w440 gPBKDF2_VERIFY vPBKDF2_VERIFY
+Gui, Add, Edit,     x+5   yp   w55 vPBKDF2_IS_VERIFY 0x800
+Gui, Font, s8 c696969, Segoe UI
+Gui, Add, Text,     xs+10 y+45 w585 0x200 vPBKDF2_INFO
 
-Gui, Add, Checkbox, xm y+6 w100 h23 vCheckSHA5, SHA-512
-Gui, Add, Edit, x+10 yp w390 0x800 vSHA5,
-Gui, Add, Button, x+3 yp w80 h23 gCopySHA5 vCopySHA5, Copy
-Gui, Add, Text, xm y+10 w586 h1 0x10
 
-Gui, Add, Text, xm y+10 w100 h23 0x200, Verify
-Gui, Add, Edit, x+10 yp w390 vVerify,
-Gui, Add, Edit, x+3 yp w80 0x201 0x800 vHashOK,
-Gui, Add, Text, xm y+10 w586 h1 0x10
-
-Gui, Font, cSilver,
-Gui, Add, Text, xm y+10 w300 h21 0x200, made with %love% and AHK 2013-%A_YYYY%, jNizM
-Gui, Font,,
-Gui, Add, Button, x+36 yp-1 w80 gCalculate, Calculate
-Gui, Add, Button, x+3 yp w80 gClear, Clear
-Gui, Add, Button, x+3 yp w80 gClose, Close
-
-Gui, Show, AutoSize, %name% %version%
-
-SetTimer, CheckEdit, 100
-SetTimer, VerifyHash, 200
+Gui, Show, AutoSize, % app.name
 return
 
-GuiDropFiles:
-    FilePath := A_GuiEvent
-    GuiControl,, Str, % FilePath
-    GuiControl, Choose, DDL, 3
-return
 
-CheckEdit:
-    Gui, Submit, NoHide
-    if (DDL = 1)
-    {
-        GuiControl, % Check = "0" ? "Disable" : "Enable",  HMAC
-        GuiControl, % DDL   = "1" ? "Enable"  : "Disable", Check
-    }
-    if (DDL = 2)
-    {
-        GuiControl, % DDL   = "2" ? "Disable" : "Enable",  HMAC
-        GuiControl, % DDL   = "2" ? "Disable" : "Enable",  Check
-        GuiControl, % DDL   = "2" ? "Enable"  : "Disable", File
-    }
-    if (DDL = 3)
-    {
-        GuiControl, % DDL   = "3" ? "Disable" : "Enable",  HMAC
-        GuiControl, % DDL   = "3" ? "Disable" : "Enable",  Check
-        GuiControl, % DDL   = "3" ? "Enable"  : "Disable", File
-    }
-    GuiControl, % Check = "1" ? "Disable" : "Enable",  CheckCRC32
-    GuiControl, % CRC32 = ""  ? "Disable" : "Enable",  CopyCRC32
-    GuiControl, % MD2   = ""  ? "Disable" : "Enable",  CopyMD2
-    GuiControl, % MD4   = ""  ? "Disable" : "Enable",  CopyMD4
-    GuiControl, % MD5   = ""  ? "Disable" : "Enable",  CopyMD5
-    GuiControl, % SHA   = ""  ? "Disable" : "Enable",  CopySHA
-    GuiControl, % SHA2  = ""  ? "Disable" : "Enable",  CopySHA2
-    GuiControl, % SHA3  = ""  ? "Disable" : "Enable",  CopySHA3
-    GuiControl, % SHA5  = ""  ? "Disable" : "Enable",  CopySHA5
-return
+; WINDOW EVENTS =================================================================================================================
 
-File:
-    GuiControl, Choose, DDL, 3
-    FileSelectFile, File
-    GuiControl,, Str, %File%
-return
-
-Calculate:
-    Gui, Submit, NoHide
-    GuiControl,, CRC32, % ((CheckCRC32 = "1") ? ((DDL = "1") ? ((Check = "0") ? (CRC32(Str))  : "")                          : ((DDL = "2") ? (HexCRC32(Str))  : (FileCRC32(Str))))  : (""))
-    GuiControl,, MD2,   % ((CheckMD2   = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD2(Str))    : (HMAC(HMAC, Str, "MD2")))    : ((DDL = "2") ? (HexMD2(Str))    : (FileMD2(Str))))    : (""))
-    GuiControl,, MD4,   % ((CheckMD4   = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD4(Str))    : (HMAC(HMAC, Str, "MD4")))    : ((DDL = "2") ? (HexMD4(Str))    : (FileMD4(Str))))    : (""))
-    GuiControl,, MD5,   % ((CheckMD5   = "1") ? ((DDL = "1") ? ((Check = "0") ? (MD5(Str))    : (HMAC(HMAC, Str, "MD5")))    : ((DDL = "2") ? (HexMD5(Str))    : (FileMD5(Str))))    : (""))
-    GuiControl,, SHA,   % ((CheckSHA   = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA(Str))    : (HMAC(HMAC, Str, "SHA")))    : ((DDL = "2") ? (HexSHA(Str))    : (FileSHA(Str))))    : (""))
-    GuiControl,, SHA2,  % ((CheckSHA2  = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA256(Str)) : (HMAC(HMAC, Str, "SHA256"))) : ((DDL = "2") ? (HexSHA256(Str)) : (FileSHA256(Str)))) : (""))
-    GuiControl,, SHA3,  % ((CheckSHA3  = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA384(Str)) : (HMAC(HMAC, Str, "SHA384"))) : ((DDL = "2") ? (HexSHA384(Str)) : (FileSHA384(Str)))) : (""))
-    GuiControl,, SHA5,  % ((CheckSHA5  = "1") ? ((DDL = "1") ? ((Check = "0") ? (SHA512(Str)) : (HMAC(HMAC, Str, "SHA512"))) : ((DDL = "2") ? (HexSHA512(Str)) : (FileSHA512(Str)))) : (""))
-return
-
-Clear:
-    GuiControl,, Str,
-    GuiControl,, HMAC,
-    GuiControl,, CRC32,
-    GuiControl,, MD2,
-    GuiControl,, MD4,
-    GuiControl,, MD5,
-    GuiControl,, SHA,
-    GuiControl,, SHA2,
-    GuiControl,, SHA3,
-    GuiControl,, SHA5,
-    GuiControl,, Verify,
-return
-
-VerifyHash:
-    Gui, Submit, NoHide
-    Result := Hashify(Verify, CRC32, MD2, MD4, MD5, SHA, SHA2, SHA3, SHA5)
-    GuiControl, % (InStr(Result, "OK") ? "+c008000" : "+c800000"), HashOK
-    GuiControl,, HashOk, %Result%
-return
-
-CopyCRC32:
-    Clipboard := CRC32
-return
-CopyMD2:
-    Clipboard := MD2
-return
-CopyMD4:
-    Clipboard := MD4
-return
-CopyMD5:
-    Clipboard := MD5
-return
-CopySHA:
-    Clipboard := SHA
-return
-CopySHA2:
-    Clipboard := SHA2
-return
-CopySHA3:
-    Clipboard := SHA3
-return
-CopySHA5:
-    Clipboard := SHA5
-return
-
-; FUNCTIONS =========================================================================
-
-; Verify ============================================================================
-Hashify(Hash, CRC32, MD2, MD4, MD5, SHA, SHA2, SHA3, SHA5)
-{
-    return % (Hash = "")    ? ""
-           : (Hash = CRC32) ? ("CRC32 OK")
-           : (Hash = MD2)   ? ("MD2 OK")
-           : (Hash = MD4)   ? ("MD4 OK")
-           : (Hash = MD5)   ? ("MD5 OK")
-           : (Hash = SHA)   ? ("SHA1 OK")
-           : (Hash = SHA2)  ? ("SHA256 OK")
-           : (Hash = SHA3)  ? ("SHA384 OK")
-           : (Hash = SHA5)  ? ("SHA512 OK")
-           : "FALSE"
-}
-
-; HMAC ==============================================================================
-HMAC(Key, Message, Algo := "MD5")
-{
-    static Algorithms := {MD2:    {ID: 0x8001, Size:  64}
-                        , MD4:    {ID: 0x8002, Size:  64}
-                        , MD5:    {ID: 0x8003, Size:  64}
-                        , SHA:    {ID: 0x8004, Size:  64}
-                        , SHA256: {ID: 0x800C, Size:  64}
-                        , SHA384: {ID: 0x800D, Size: 128}
-                        , SHA512: {ID: 0x800E, Size: 128}}
-    static iconst := 0x36
-    static oconst := 0x5C
-    if (!(Algorithms.HasKey(Algo)))
-    {
-        return ""
-    }
-    Hash := KeyHashLen := InnerHashLen := ""
-    HashLen := 0
-    AlgID := Algorithms[Algo].ID
-    BlockSize := Algorithms[Algo].Size
-    MsgLen := StrPut(Message, "UTF-8") - 1
-    KeyLen := StrPut(Key, "UTF-8") - 1
-    VarSetCapacity(K, KeyLen + 1, 0)
-    StrPut(Key, &K, KeyLen, "UTF-8")
-    if (KeyLen > BlockSize)
-    {
-        CalcAddrHash(&K, KeyLen, AlgID, KeyHash, KeyHashLen)
-    }
-
-    VarSetCapacity(ipad, BlockSize + MsgLen, iconst)
-    Addr := KeyLen > BlockSize ? &KeyHash : &K
-    Length := KeyLen > BlockSize ? KeyHashLen : KeyLen
-    i := 0
-    while (i < Length)
-    {
-        NumPut(NumGet(Addr + 0, i, "UChar") ^ iconst, ipad, i, "UChar")
-        i++
-    }
-    if (MsgLen)
-    {
-        StrPut(Message, &ipad + BlockSize, MsgLen, "UTF-8")
-    }
-    CalcAddrHash(&ipad, BlockSize + MsgLen, AlgID, InnerHash, InnerHashLen)
-
-    VarSetCapacity(opad, BlockSize + InnerHashLen, oconst)
-    Addr := KeyLen > BlockSize ? &KeyHash : &K
-    Length := KeyLen > BlockSize ? KeyHashLen : KeyLen
-    i := 0
-    while (i < Length)
-    {
-        NumPut(NumGet(Addr + 0, i, "UChar") ^ oconst, opad, i, "UChar")
-        i++
-    }
-    Addr := &opad + BlockSize
-    i := 0
-    while (i < InnerHashLen)
-    {
-        NumPut(NumGet(InnerHash, i, "UChar"), Addr + i, 0, "UChar")
-        i++
-    }
-    return CalcAddrHash(&opad, BlockSize + InnerHashLen, AlgID)
-}
-
-; MD2 ===============================================================================
-MD2(string, encoding = "UTF-8")
-{
-    return CalcStringHash(string, 0x8001, encoding)
-}
-HexMD2(hexstring)
-{
-    return CalcHexHash(hexstring, 0x8001)
-}
-FileMD2(filename)
-{
-    return CalcFileHash(filename, 0x8001, 64 * 1024)
-}
-; MD4 ===============================================================================
-MD4(string, encoding = "UTF-8")
-{
-    return CalcStringHash(string, 0x8002, encoding)
-}
-HexMD4(hexstring)
-{
-    return CalcHexHash(hexstring, 0x8002)
-}
-FileMD4(filename)
-{
-    return CalcFileHash(filename, 0x8002, 64 * 1024)
-}
-; MD5 ===============================================================================
-MD5(string, encoding = "UTF-8")
-{
-    return CalcStringHash(string, 0x8003, encoding)
-}
-HexMD5(hexstring)
-{
-    return CalcHexHash(hexstring, 0x8003)
-}
-FileMD5(filename)
-{
-    return CalcFileHash(filename, 0x8003, 64 * 1024)
-}
-; SHA ===============================================================================
-SHA(string, encoding = "UTF-8")
-{
-    return CalcStringHash(string, 0x8004, encoding)
-}
-HexSHA(hexstring)
-{
-    return CalcHexHash(hexstring, 0x8004)
-}
-FileSHA(filename)
-{
-    return CalcFileHash(filename, 0x8004, 64 * 1024)
-}
-; SHA256 ============================================================================
-SHA256(string, encoding = "UTF-8")
-{
-    return CalcStringHash(string, 0x800c, encoding)
-}
-HexSHA256(hexstring)
-{
-    return CalcHexHash(hexstring, 0x800c)
-}
-FileSHA256(filename)
-{
-    return CalcFileHash(filename, 0x800c, 64 * 1024)
-}
-; SHA384 ============================================================================
-SHA384(string, encoding = "UTF-8")
-{
-    return CalcStringHash(string, 0x800d, encoding)
-}
-HexSHA384(hexstring)
-{
-    return CalcHexHash(hexstring, 0x800d)
-}
-FileSHA384(filename)
-{
-    return CalcFileHash(filename, 0x800d, 64 * 1024)
-}
-; SHA512 ============================================================================
-SHA512(string, encoding = "UTF-8")
-{
-    return CalcStringHash(string, 0x800e, encoding)
-}
-HexSHA512(hexstring)
-{
-    return CalcHexHash(hexstring, 0x800e)
-}
-FileSHA512(filename)
-{
-    return CalcFileHash(filename, 0x800e, 64 * 1024)
-}
-
-; CalcAddrHash ======================================================================
-CalcAddrHash(addr, length, algid, byref hash = 0, byref hashlength = 0)
-{
-    static h := [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "a", "b", "c", "d", "e", "f"]
-    static b := h.minIndex()
-    hProv := hHash := o := ""
-    if (DllCall("advapi32\CryptAcquireContext", "Ptr*", hProv, "Ptr", 0, "Ptr", 0, "UInt", 24, "UInt", 0xf0000000))
-    {
-        if (DllCall("advapi32\CryptCreateHash", "Ptr", hProv, "UInt", algid, "UInt", 0, "UInt", 0, "Ptr*", hHash))
-        {
-            if (DllCall("advapi32\CryptHashData", "Ptr", hHash, "Ptr", addr, "UInt", length, "UInt", 0))
-            {
-                if (DllCall("advapi32\CryptGetHashParam", "Ptr", hHash, "UInt", 2, "Ptr", 0, "UInt*", hashlength, "UInt", 0))
-                {
-                    VarSetCapacity(hash, hashlength, 0)
-                    if (DllCall("advapi32\CryptGetHashParam", "Ptr", hHash, "UInt", 2, "Ptr", &hash, "UInt*", hashlength, "UInt", 0))
-                    {
-                        loop % hashlength
-                        {
-                            v := NumGet(hash, A_Index - 1, "UChar")
-                            o .= h[(v >> 4) + b] h[(v & 0xf) + b]
-                        }
-                    }
-                }
-            }
-            DllCall("advapi32\CryptDestroyHash", "Ptr", hHash)
-        }
-        DllCall("advapi32\CryptReleaseContext", "Ptr", hProv, "UInt", 0)
-    }
-    return o
-}
-
-; CalcStringHash ====================================================================
-CalcStringHash(string, algid, encoding = "UTF-8", byref hash = 0, byref hashlength = 0)
-{
-    chrlength := (encoding = "CP1200" || encoding = "UTF-16") ? 2 : 1
-    length := (StrPut(string, encoding) - 1) * chrlength
-    VarSetCapacity(data, length, 0)
-    StrPut(string, &data, floor(length / chrlength), encoding)
-    return CalcAddrHash(&data, length, algid, hash, hashlength)
-}
-
-; CalcHexHash =======================================================================
-CalcHexHash(hexstring, algid)
-{
-    length := StrLen(hexstring) // 2
-    VarSetCapacity(data, length, 0)
-    loop % length
-    {
-        NumPut("0x" SubStr(hexstring, 2 * A_Index -1, 2), data, A_Index - 1, "Char")
-    }
-    return CalcAddrHash(&data, length, algid)
-}
-
-; CalcFileHash ======================================================================
-CalcFileHash(filename, algid, continue = 0, byref hash = 0, byref hashlength = 0)
-{
-    fpos := ""
-    if (!(f := FileOpen(filename, "r")))
-    {
-        return
-    }
-    f.pos := 0
-    if (!continue && f.length > 0x7fffffff)
-    {
-        return
-    }
-    if (!continue)
-    {
-        VarSetCapacity(data, f.length, 0)
-        f.rawRead(&data, f.length)
-        f.pos := oldpos
-        return CalcAddrHash(&data, f.length, algid, hash, hashlength)
-    }
-    hashlength := 0
-    while (f.pos < f.length)
-    {
-        readlength := (f.length - fpos > continue) ? continue : f.length - f.pos
-        VarSetCapacity(data, hashlength + readlength, 0)
-        DllCall("RtlMoveMemory", "Ptr", &data, "Ptr", &hash, "Ptr", hashlength)
-        f.rawRead(&data + hashlength, readlength)
-        h := CalcAddrHash(&data, hashlength + readlength, algid, hash, hashlength)
-    }
-    return h
-}
-
-; CRC32 =============================================================================
-CRC32(string, encoding = "UTF-8")
-{
-    chrlength := (encoding = "CP1200" || encoding = "UTF-16") ? 2 : 1
-    length := (StrPut(string, encoding) - 1) * chrlength
-    VarSetCapacity(data, length, 0)
-    StrPut(string, &data, floor(length / chrlength), encoding)
-    hMod := DllCall("Kernel32.dll\LoadLibrary", "Str", "Ntdll.dll")
-    SetFormat, Integer, % SubStr((A_FI := A_FormatInteger) "H", 0)
-    CRC := DllCall("Ntdll.dll\RtlComputeCrc32", "UInt", 0, "UInt", &data, "UInt", length, "UInt")
-    o := SubStr(CRC | 0x1000000000, -7)
-    DllCall("User32.dll\CharLower", "Str", o)
-    SetFormat, Integer, %A_FI%
-    return o, DllCall("Kernel32.dll\FreeLibrary", "Ptr", hMod)
-}
-
-; HexCRC32 ==========================================================================
-HexCRC32(hexstring)
-{
-    length := StrLen(hexstring) // 2
-    VarSetCapacity(data, length, 0)
-    loop % length
-    {
-        NumPut("0x" SubStr(hexstring, 2 * A_Index -1, 2), data, A_Index - 1, "Char")
-    }
-    hMod := DllCall("Kernel32.dll\LoadLibrary", "Str", "Ntdll.dll")
-    SetFormat, Integer, % SubStr((A_FI := A_FormatInteger) "H", 0)
-    CRC := DllCall("Ntdll.dll\RtlComputeCrc32", "UInt", 0, "UInt", &data, "UInt", length, "UInt")
-    o := SubStr(CRC | 0x1000000000, -7)
-    DllCall("User32.dll\CharLower", "Str", o)
-    SetFormat, Integer, %A_FI%
-    return o, DllCall("Kernel32.dll\FreeLibrary", "Ptr", hMod)
-}
-
-; FileCRC32 =========================================================================
-FileCRC32(sFile := "", cSz := 4)
-{
-    Bytes := ""
-    cSz := (cSz < 0 || cSz > 8) ? 2**22 : 2**(18 + cSz)
-    VarSetCapacity(Buffer, cSz, 0)
-    hFil := DllCall("Kernel32.dll\CreateFile", "Str", sFile, "UInt", 0x80000000, "UInt", 3, "Int", 0, "UInt", 3, "UInt", 0, "Int", 0, "UInt")
-    if (hFil < 1)
-    {
-        return hFil
-    }
-    hMod := DllCall("Kernel32.dll\LoadLibrary", "Str", "Ntdll.dll")
-    CRC := 0
-    DllCall("Kernel32.dll\GetFileSizeEx", "UInt", hFil, "Int64", &Buffer), fSz := NumGet(Buffer, 0, "Int64")
-    loop % (fSz // cSz + !!Mod(fSz, cSz))
-    {
-        DllCall("Kernel32.dll\ReadFile", "UInt", hFil, "Ptr", &Buffer, "UInt", cSz, "UInt*", Bytes, "UInt", 0)
-        CRC := DllCall("Ntdll.dll\RtlComputeCrc32", "UInt", CRC, "UInt", &Buffer, "UInt", Bytes, "UInt")
-    }
-    DllCall("Kernel32.dll\CloseHandle", "Ptr", hFil)
-    SetFormat, Integer, % SubStr((A_FI := A_FormatInteger) "H", 0)
-    CRC := SubStr(CRC + 0x1000000000, -7)
-    DllCall("User32.dll\CharLower", "Str", CRC)
-    SetFormat, Integer, %A_FI%
-    return CRC, DllCall("Kernel32.dll\FreeLibrary", "Ptr", hMod)
-}
-
-
-; EXIT ==============================================================================
-
-Close:
 GuiClose:
-    exitapp
+	ExitApp
+return
+
+
+STRING_CALCULATE:
+	GuiControlGet, GET_STRING,, HASH_STRING
+	GuiControlGet, GET_STRING_HMAC,, HASH_HMAC
+	GuiControl,, HASH_STRING_MD2,    % (GET_STRING_HMAC) ? bcrypt.hmac(GET_STRING, GET_STRING_HMAC, "MD2")    : bcrypt.hash(GET_STRING, "MD2")
+	GuiControl,, HASH_STRING_MD4,    % (GET_STRING_HMAC) ? bcrypt.hmac(GET_STRING, GET_STRING_HMAC, "MD4")    : bcrypt.hash(GET_STRING, "MD4")
+	GuiControl,, HASH_STRING_MD5,    % (GET_STRING_HMAC) ? bcrypt.hmac(GET_STRING, GET_STRING_HMAC, "MD5")    : bcrypt.hash(GET_STRING, "MD5")
+	GuiControl,, HASH_STRING_SHA1,   % (GET_STRING_HMAC) ? bcrypt.hmac(GET_STRING, GET_STRING_HMAC, "SHA1")   : bcrypt.hash(GET_STRING, "SHA1")
+	GuiControl,, HASH_STRING_SHA256, % (GET_STRING_HMAC) ? bcrypt.hmac(GET_STRING, GET_STRING_HMAC, "SHA256") : bcrypt.hash(GET_STRING, "SHA256")
+	GuiControl,, HASH_STRING_SHA384, % (GET_STRING_HMAC) ? bcrypt.hmac(GET_STRING, GET_STRING_HMAC, "SHA384") : bcrypt.hash(GET_STRING, "SHA384")
+	GuiControl,, HASH_STRING_SHA512, % (GET_STRING_HMAC) ? bcrypt.hmac(GET_STRING, GET_STRING_HMAC, "SHA512") : bcrypt.hash(GET_STRING, "SHA512")
+	gosub STRING_VERIFY
+return
+
+STRING_VERIFY:
+	Gui, Submit, NoHide
+	STRING_RESULT := (STRING_VERIFY = "") ? ""
+	               : (STRING_VERIFY = HASH_STRING_MD2)    ? "MD2"
+				   : (STRING_VERIFY = HASH_STRING_MD4)    ? "MD4"
+				   : (STRING_VERIFY = HASH_STRING_MD5)    ? "MD5"
+				   : (STRING_VERIFY = HASH_STRING_SHA1)   ? "SHA1"
+				   : (STRING_VERIFY = HASH_STRING_SHA256) ? "SHA256"
+				   : (STRING_VERIFY = HASH_STRING_SHA384) ? "SHA384"
+				   : (STRING_VERIFY = HASH_STRING_SHA512) ? "SHA512"
+				   : "FALSE"
+	GuiControl, % (InStr(STRING_RESULT, "FALSE") ? "+c800000" : "+c008000"), STRING_IS_VERIFY
+	GuiControl,, STRING_IS_VERIFY, % STRING_RESULT
+return
+
+
+FILE_GET:
+	GET_FILE := ""
+	FileSelectFile, GET_FILE, 3,, % "Open"
+	if !(ErrorLevel) {
+		GuiControl,, HASH_FILE, % GET_FILE
+		FileGetSize, FILE_SIZE, % GET_FILE
+		GuiControl,, HASH_FILE_SIZE, % "File Size: " StrFormatByteSizeEx(FILE_SIZE, 0x1)
+	}
+return
+
+FILE_CALCULATE:
+	GuiControlGet, GET_FILE,,  HASH_FILE
+	GuiControlGet, IS_MD2,,    HASH_FILE_IS_MD2
+	GuiControlGet, IS_MD4,,    HASH_FILE_IS_MD4
+	GuiControlGet, IS_MD5,,    HASH_FILE_IS_MD5
+	GuiControlGet, IS_SHA1,,   HASH_FILE_IS_SHA1
+	GuiControlGet, IS_SHA256,, HASH_FILE_IS_SHA256
+	GuiControlGet, IS_SHA384,, HASH_FILE_IS_SHA384
+	GuiControlGet, IS_SHA512,, HASH_FILE_IS_SHA512
+	if (IS_MD2)
+		GuiControl,, HASH_FILE_MD2, % bcrypt.file(GET_FILE, "MD2")
+	if (IS_MD4)
+		GuiControl,, HASH_FILE_MD4, % bcrypt.file(GET_FILE, "MD4")
+	if (IS_MD5)
+		GuiControl,, HASH_FILE_MD5, % bcrypt.file(GET_FILE, "MD5")
+	if (IS_SHA1)
+		GuiControl,, HASH_FILE_SHA1, % bcrypt.file(GET_FILE, "SHA1")
+	if (IS_SHA256)
+		GuiControl,, HASH_FILE_SHA256, % bcrypt.file(GET_FILE, "SHA256")
+	if (IS_SHA384)
+		GuiControl,, HASH_FILE_SHA384, % bcrypt.file(GET_FILE, "SHA384")
+	if (IS_SHA512)
+		GuiControl,, HASH_FILE_SHA512, % bcrypt.file(GET_FILE, "SHA512")
+	gosub FILE_VERIFY
+return
+
+FILE_VERIFY:
+	Gui, Submit, NoHide
+	FILE_RESULT := (FILE_VERIFY = "") ? ""
+	               : (FILE_VERIFY = HASH_FILE_MD2)    ? "MD2"
+				   : (FILE_VERIFY = HASH_FILE_MD4)    ? "MD4"
+				   : (FILE_VERIFY = HASH_FILE_MD5)    ? "MD5"
+				   : (FILE_VERIFY = HASH_FILE_SHA1)   ? "SHA1"
+				   : (FILE_VERIFY = HASH_FILE_SHA256) ? "SHA256"
+				   : (FILE_VERIFY = HASH_FILE_SHA384) ? "SHA384"
+				   : (FILE_VERIFY = HASH_FILE_SHA512) ? "SHA512"
+				   : "FALSE"
+	GuiControl, % (InStr(FILE_RESULT, "FALSE") ? "+c800000" : "+c008000"), FILE_IS_VERIFY
+	GuiControl,, FILE_IS_VERIFY, % FILE_RESULT
+return
+
+
+PBKDF2_CALCULATE:
+	GuiControlGet, GET_PASSWORD,,     PBKDF2_PASSWORD
+	GuiControlGet, GET_SALT,,         PBKDF2_SALT
+	GuiControlGet, GET_ITERATIONS,,   PBKDF2_ITERATIONS
+	GuiControlGet, GET_KEYBITLENGTH,, PBKDF2_KEYBITLENGTH
+	GuiControlGet, GET_ALGORITHM,,    PBKDF2_ALGORITHM
+
+	if (Mod(GET_KEYBITLENGTH, 8) != 0) {
+		GuiControl,, PBKDF2, % ""
+		GuiControl,, PBKDF2_INFO, % " * The desired key bit length must be a multiple of 8!"
+		return
+	}
+	else if ((StrLen(GET_SALT) * 2) < 128)
+		GuiControl,, PBKDF2_INFO, % " * The US National Institute of Standards and Technology recommends a salt length of 128 bits."
+	else if (GET_ITERATIONS < 4096)
+		GuiControl,, PBKDF2_INFO, % " * A Kerberos standard in 2005 recommended a minimum of 4096 iterations."
+	else
+		GuiControl,, PBKDF2_INFO, % ""
+
+	if (GET_PASSWORD) && (GET_ITERATIONS) && (GET_KEYBITLENGTH) && (GET_ALGORITHM)
+		GuiControl,, PBKDF2, % GET_PBKDF2 := bcrypt.pbkdf2(GET_PASSWORD, GET_SALT, GET_ALGORITHM, GET_ITERATIONS, GET_KEYBITLENGTH)
+	else
+		GuiControl,, PBKDF2, % ""
+return
+
+PBKDF2_VERIFY:
+	GuiControlGet, GET_PBKDF2,, PBKDF2
+	GuiControlGet, GET_VERIFY,, PBKDF2_VERIFY
+	PBKDF2_RESULT := (GET_VERIFY = "") ? "" : (GET_VERIFY = GET_PBKDF2) ? "OK" : "FALSE"
+	GuiControl, % (InStr(PBKDF2_RESULT, "OK") ? "+c008000" : "+c800000"), PBKDF2_IS_VERIFY
+	GuiControl,, PBKDF2_IS_VERIFY, % PBKDF2_RESULT
+return
+
+
+; FUNCTIONS =====================================================================================================================
+
+; ===============================================================================================================================
+; Function .................:  StrFormatByteSizeEx
+; Minimum supported client .:  Windows Vista SP1
+; Minimum supported server .:  Windows Server 2008
+; Links ....................:  https://docs.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-strformatbytesizeex
+; Description ..............:  Converts a numeric value into a string that represents the number in bytes, kilobytes, megabytes,
+;                              or gigabytes, depending on the size.
+; ===============================================================================================================================
+StrFormatByteSizeEx(int, flags := 0x2)
+{
+    size := VarSetCapacity(buf, 0x0104, 0)
+    if (DllCall("shlwapi.dll\StrFormatByteSizeEx", "int64", int, "int", flags, "str", buf, "uint", size) != 0)
+        throw Exception("StrFormatByteSizeEx failed", -1)
+    return buf
+}
+
+
+; CLASSES =======================================================================================================================
+
+; AHK implementation for CNG (https://github.com/jNizM/AHK_CNG)
+class bcrypt
+{
+    static BCRYPT_OBJECT_LENGTH        := "ObjectLength"
+    static BCRYPT_HASH_LENGTH          := "HashDigestLength"
+    static BCRYPT_ALG_HANDLE_HMAC_FLAG := 0x00000008
+    static hBCRYPT := DllCall("LoadLibrary", "str", "bcrypt.dll", "ptr")
+
+    hash(String, AlgID, encoding := "utf-8")
+    {
+        AlgID         := this.CheckAlgorithm(AlgID)
+        ALG_HANDLE    := this.BCryptOpenAlgorithmProvider(AlgID)
+        OBJECT_LENGTH := this.BCryptGetProperty(ALG_HANDLE, this.BCRYPT_OBJECT_LENGTH, 4)
+        HASH_LENGTH   := this.BCryptGetProperty(ALG_HANDLE, this.BCRYPT_HASH_LENGTH, 4)
+        HASH_HANDLE   := this.BCryptCreateHash(ALG_HANDLE, HASH_OBJECT, OBJECT_LENGTH)
+        this.BCryptHashData(HASH_HANDLE, STRING, encoding)
+        HASH_LENGTH   := this.BCryptFinishHash(HASH_HANDLE, HASH_LENGTH, HASH_DATA)
+        hash          := this.CalcHash(HASH_DATA, HASH_LENGTH)
+        this.DestroyHash(HASH_HANDLE)
+        this.CloseAlgorithmProvider(ALG_HANDLE)
+        return hash
+    }
+
+    hmac(String, Hmac, AlgID, encoding := "utf-8")
+    {
+        AlgID         := this.CheckAlgorithm(AlgID)
+        ALG_HANDLE    := this.BCryptOpenAlgorithmProvider(AlgID, this.BCRYPT_ALG_HANDLE_HMAC_FLAG)
+        OBJECT_LENGTH := this.BCryptGetProperty(ALG_HANDLE, this.BCRYPT_OBJECT_LENGTH, 4)
+        HASH_LENGTH   := this.BCryptGetProperty(ALG_HANDLE, this.BCRYPT_HASH_LENGTH, 4)
+        HASH_HANDLE   := this.BCryptCreateHmac(ALG_HANDLE, HMAC, HASH_OBJECT, OBJECT_LENGTH, encoding)
+        this.BCryptHashData(HASH_HANDLE, STRING, encoding)
+        HASH_LENGTH   := this.BCryptFinishHash(HASH_HANDLE, HASH_LENGTH, HASH_DATA)
+        hash          := this.CalcHash(HASH_DATA, HASH_LENGTH)
+        this.DestroyHash(HASH_HANDLE)
+        this.CloseAlgorithmProvider(ALG_HANDLE)
+        return hash
+    }
+
+    file(FileName, AlgID, bytes := 1048576, offset := 0, length := -1, encoding := "utf-8")
+    {
+        AlgID         := this.CheckAlgorithm(AlgID)
+        ALG_HANDLE    := this.BCryptOpenAlgorithmProvider(AlgID)
+        OBJECT_LENGTH := this.BCryptGetProperty(ALG_HANDLE, this.BCRYPT_OBJECT_LENGTH, 4)
+        HASH_LENGTH   := this.BCryptGetProperty(ALG_HANDLE, this.BCRYPT_HASH_LENGTH, 4)
+        HASH_HANDLE   := this.BCryptCreateHash(ALG_HANDLE, HASH_OBJECT, OBJECT_LENGTH)
+		if !(IsObject(f := FileOpen(filename, "r", encoding)))
+			throw Exception("Failed to open file: " filename, -1)
+		length := length < 0 ? f.length - offset : length
+		if ((offset + length) > f.length)
+			throw Exception("Invalid parameters offset / length!", -1)
+		f.Pos(offset)
+		while (length > bytes) && (dataread := f.RawRead(data, bytes)) {
+			this.BCryptHashFile(HASH_HANDLE, DATA, DATAREAD)
+			length -= dataread
+		}
+		if (length > 0) {
+			if (dataread := f.RawRead(data, length))
+				this.BCryptHashFile(HASH_HANDLE, DATA, DATAREAD)
+		}
+		f.Close()
+        HASH_LENGTH   := this.BCryptFinishHash(HASH_HANDLE, HASH_LENGTH, HASH_DATA)
+        hash          := this.CalcHash(HASH_DATA, HASH_LENGTH)
+        this.DestroyHash(HASH_HANDLE)
+        this.CloseAlgorithmProvider(ALG_HANDLE)
+        return hash
+    }
+
+    pbkdf2(Password, Salt, AlgID, Iterations := 1024, KeySize := 128, encoding := "utf-8")
+    {
+        AlgID       := this.CheckAlgorithm(AlgID)
+        ALG_HANDLE  := this.BCryptOpenAlgorithmProvider(AlgID, this.BCRYPT_ALG_HANDLE_HMAC_FLAG)
+        this.BCryptDeriveKeyPBKDF2(ALG_HANDLE, Password, Salt, Iterations, KeySize / 8, PBKDF2_DATA, encoding)
+        pbkdf2 := this.CalcHash(PBKDF2_DATA, KeySize / 8)
+        this.BCryptCloseAlgorithmProvider(ALG_HANDLE)
+        return pbkdf2
+    }
+
+
+	; ===========================================================================================================================
+	; Function ...: BCryptOpenAlgorithmProvider
+	; Links ......: https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptopenalgorithmprovider
+	; ===========================================================================================================================
+	BCryptOpenAlgorithmProvider(ALGORITHM, FLAGS := 0)
+	{
+		if (NT_STATUS := DllCall("bcrypt\BCryptOpenAlgorithmProvider", "ptr*", BCRYPT_ALG_HANDLE
+                                                                     , "ptr",  &ALGORITHM
+                                                                     , "ptr",  0
+                                                                     , "uint", FLAGS) != 0)
+			throw Exception("BCryptOpenAlgorithmProvider: " NT_STATUS, -1)
+		return BCRYPT_ALG_HANDLE
+	}
+
+	; ===========================================================================================================================
+	; Function ...: BCryptGetProperty
+	; Links ......: https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgetproperty
+	; ===========================================================================================================================
+	BCryptGetProperty(BCRYPT_HANDLE, PROPERTY, cbOutput)
+	{
+		if (NT_STATUS := DllCall("bcrypt\BCryptGetProperty", "ptr",   BCRYPT_HANDLE
+                                                           , "ptr",   &PROPERTY
+                                                           , "uint*", pbOutput
+                                                           , "uint",  cbOutput
+                                                           , "uint*", cbResult
+                                                           , "uint",  0) != 0)
+			throw Exception("BCryptGetProperty: " NT_STATUS, -1)
+		return pbOutput
+	}
+
+	; ===========================================================================================================================
+	; Function ...: BCryptCreateHash
+	; Links ......: https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptcreatehash
+	; ===========================================================================================================================
+    BCryptCreateHash(BCRYPT_ALG_HANDLE, ByRef pbHashObject, cbHashObject)
+    {
+        VarSetCapacity(pbHashObject, cbHashObject, 0)
+        if (NT_STATUS := DllCall("bcrypt\BCryptCreateHash", "ptr",  BCRYPT_ALG_HANDLE
+                                                          , "ptr*", BCRYPT_HASH_HANDLE
+                                                          , "ptr",  &pbHashObject
+                                                          , "uint", cbHashObject
+                                                          , "ptr",  0
+                                                          , "uint", 0
+                                                          , "uint", 0) != 0)
+            throw Exception("BCryptCreateHash: " NT_STATUS, -1)
+        return BCRYPT_HASH_HANDLE
+    }
+
+    BCryptCreateHmac(BCRYPT_ALG_HANDLE, HMAC, ByRef pbHashObject, cbHashObject, encoding := "utf-8")
+    {
+        VarSetCapacity(pbHashObject, cbHashObject, 0)
+		VarSetCapacity(pbSecret, (StrPut(HMAC, encoding) - 1) * ((encoding = "utf-16" || encoding = "cp1200") ? 2 : 1), 0)
+		cbSecret := StrPut(HMAC, &pbSecret, encoding) - 1
+        if (NT_STATUS := DllCall("bcrypt\BCryptCreateHash", "ptr",  BCRYPT_ALG_HANDLE
+                                                          , "ptr*", BCRYPT_HASH_HANDLE
+                                                          , "ptr",  &pbHashObject
+                                                          , "uint", cbHashObject
+                                                          , "ptr",  &pbSecret
+                                                          , "uint", cbSecret
+                                                          , "uint", 0) != 0)
+            throw Exception("BCryptCreateHash: " NT_STATUS, -1)
+        return BCRYPT_HASH_HANDLE
+    }
+
+	; ===========================================================================================================================
+	; Function ...: BCryptHashData
+	; Links ......: https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcrypthashdata
+	; ===========================================================================================================================
+    BCryptHashData(BCRYPT_HASH_HANDLE, STRING, encoding := "utf-8")
+    {
+		VarSetCapacity(pbInput, (StrPut(STRING, encoding) - 1) * ((encoding = "utf-16" || encoding = "cp1200") ? 2 : 1), 0)
+		cbInput := StrPut(STRING, &pbInput, encoding) - 1
+        if (NT_STATUS := DllCall("bcrypt\BCryptHashData", "ptr",  BCRYPT_HASH_HANDLE
+                                                        , "ptr",  &pbInput
+                                                        , "uint", cbInput
+                                                        , "uint", 0) != 0)
+            throw Exception("BCryptHashData: " NT_STATUS, -1)
+        return true
+    }
+
+    BCryptHashFile(BCRYPT_HASH_HANDLE, pbInput, cbInput)
+    {
+        if (NT_STATUS := DllCall("bcrypt\BCryptHashData", "ptr",  BCRYPT_HASH_HANDLE
+                                                        , "ptr",  &pbInput
+                                                        , "uint", cbInput
+                                                        , "uint", 0) != 0)
+            throw Exception("BCryptHashData: " NT_STATUS, -1)
+        return true
+    }
+
+	; ===========================================================================================================================
+	; Function ...: BCryptFinishHash
+	; Links ......: https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptfinishhash
+	; ===========================================================================================================================
+    BCryptFinishHash(BCRYPT_HASH_HANDLE, cbOutput, ByRef pbOutput)
+    {
+        VarSetCapacity(pbOutput, cbOutput, 0)
+        if (NT_STATUS := DllCall("bcrypt\BCryptFinishHash", "ptr",  BCRYPT_HASH_HANDLE
+                                                          , "ptr",  &pbOutput
+                                                          , "uint", cbOutput
+                                                          , "uint", 0) != 0)
+            throw Exception("BCryptFinishHash: " NT_STATUS, -1)
+        return cbOutput
+    }
+
+	; ===========================================================================================================================
+	; Function ...: BCryptDeriveKeyPBKDF2
+	; Links ......: https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptderivekeypbkdf2
+	; ===========================================================================================================================
+    BCryptDeriveKeyPBKDF2(BCRYPT_ALG_HANDLE, PASS, SALT, cIterations, cbDerivedKey, ByRef pbDerivedKey, encoding := "utf-8")
+    {
+		VarSetCapacity(pbDerivedKey, cbDerivedKey, 0)
+		VarSetCapacity(pbPass, (StrPut(PASS, encoding) - 1) * ((encoding = "utf-16" || encoding = "cp1200") ? 2 : 1), 0)
+		cbPass := StrPut(PASS, &pbPass, encoding) - 1
+		VarSetCapacity(pbSalt, (StrPut(SALT, encoding) - 1) * ((encoding = "utf-16" || encoding = "cp1200") ? 2 : 1), 0)
+		cbSalt := StrPut(SALT, &pbSalt, encoding) - 1
+        if (NT_STATUS := DllCall("bcrypt\BCryptDeriveKeyPBKDF2", "ptr",   BCRYPT_ALG_HANDLE
+                                                               , "ptr",   &pbPass
+                                                               , "uint",  cbPass
+                                                               , "ptr",   &pbSalt
+                                                               , "uint",  cbSalt
+                                                               , "int64", cIterations
+                                                               , "ptr",   &pbDerivedKey
+                                                               , "uint",  cbDerivedKey
+                                                               , "uint",  0) != 0)
+            throw Exception("BCryptDeriveKeyPBKDF2: " NT_STATUS, -1)
+        return true
+    }
+
+	; ===========================================================================================================================
+	; Function ...: BCryptDestroyHash
+	; Links ......: https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptdestroyhash
+	; ===========================================================================================================================
+    BCryptDestroyHash(BCRYPT_HASH_HANDLE)
+    {
+        if (NT_STATUS := DllCall("bcrypt\BCryptDestroyHash", "ptr", BCRYPT_HASH_HANDLE) != 0)
+            throw Exception("BCryptDestroyHash: " NT_STATUS, -1)
+        return true
+    }
+
+	; ===========================================================================================================================
+	; Function ...: BCryptCloseAlgorithmProvider
+	; Links ......: https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptclosealgorithmprovider
+	; ===========================================================================================================================
+    BCryptCloseAlgorithmProvider(BCRYPT_ALG_HANDLE)
+    {
+        if (NT_STATUS := DllCall("bcrypt\BCryptCloseAlgorithmProvider", "ptr",  BCRYPT_ALG_HANDLE
+                                                                      , "uint", 0) != 0)
+            throw Exception("BCryptCloseAlgorithmProvider: " NT_STATUS, -1)
+        return true
+    }
+
+
+    ; ===========================================================================================================================
+    ; For Internal Use Only
+    ; ===========================================================================================================================
+    CheckAlgorithm(ALGORITHM)
+    {
+        static HASH_ALGORITHM := ["MD2", "MD4", "MD5", "SHA1", "SHA256", "SHA384", "SHA512"]
+        for index, value in HASH_ALGORITHM
+            if (value = ALGORITHM)
+                return this.CharUpper(ALGORITHM)
+        throw Exception("Invalid hash algorithm", -1, ALGORITHM)
+    }
+
+    CharUpper(lpsz)
+    {
+        DllCall("user32.dll\CharUpper", "str", lpsz, "str")
+        return lpsz
+    }
+
+    CalcHash(Byref HASH_DATA, HASH_LENGTH)
+    {
+        loop % HASH_LENGTH
+            HASH .= Format("{:02x}", NumGet(HASH_DATA, A_Index - 1, "uchar"))
+        return HASH
+    }
+}
+
+; ===============================================================================================================================

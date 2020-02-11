@@ -3,36 +3,24 @@ Calculate hash from string, hex or file via AutoHotkey
 
 
 ## Features
-* Generate hash value from string, hex or file
+* Generate hash value from string or file
+* Generate Password-Based Key Derivation Function 2 (PBKDF2)
 * Secure-Salted function
 * Verify hash
 
-### Hash Functions
-* CRC32
+### Functions
 * MD2, MD4, MD5
 * SHA-1
 * SHA-256, SHA-384, SHA-512
 * HMAC
-
-## Screenshot
-![Screenshot](Screenshot.png)
+* PBKDF2
 
 
-## Info
-* Version: v0.9
-* URL: [AHK Thread](http://ahkscript.org/boards/viewtopic.php?f=6&t=87)
-
-
-## Changelog
-* 0.9 | Added hash function CRC32
-* 0.8 | Bug fixes and improvements
-* 0.7 | Added CalcHexHash()
-* 0.6 | Change Salt to HMAC funtion
-* 0.5 | Added Drag&Drop File into Gui
-* 0.4 | Changed Hash functions to CalcAddrHash(), CalcStringHash() & CalcFileHash()
-* 0.3 | Added Disable Salt if 'File' is active
-* 0.2 | Added HashFromFile(), Checkbox
-* 0.1 | First Release
+## Examples
+![HashCalc](img/HashCalc_01.png)
+![HashCalc](img/HashCalc_02.png)
+![HashCalc](img/HashCalc_03.png)
+![HashCalc](img/HashCalc_04.png)
 
 
 ## Contributing
@@ -41,3 +29,15 @@ Calculate hash from string, hex or file via AutoHotkey
 * thanks to SKAN for his functions CRC() & FileCRC32()
 * thanks to just me for his translated function HMAC()
 * thanks to AutoHotkey Community
+
+
+## Questions / Bugs / Issues
+If you notice any kind of bugs or issues, report them on the [AHK Thread](https://www.autohotkey.com/boards/viewtopic.php?t=87). Same for any kind of questions.
+
+
+## Copyright and License
+[MIT License](LICENSE)
+
+
+## Donations
+[Donations are appreciated if I could help you](https://www.paypal.me/smithz)
