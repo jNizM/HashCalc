@@ -24,10 +24,6 @@ Calculate hash from string, hex or file via AutoHotkey
 
 
 ## Contributing
-* thanks to Bentschi for his functions CalcAddrHash(), CalcStringHash() & CalcFileHash()
-* thanks to atnbueno for CalcHexHash()
-* thanks to SKAN for his functions CRC() & FileCRC32()
-* thanks to just me for his translated function HMAC()
 * thanks to AutoHotkey Community
 
 
