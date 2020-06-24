@@ -283,8 +283,8 @@ class bcrypt
 		this.BCryptHashData(HASH_HANDLE, STRING, encoding)
 		HASH_LENGTH   := this.BCryptFinishHash(HASH_HANDLE, HASH_LENGTH, HASH_DATA)
 		hash          := this.CalcHash(HASH_DATA, HASH_LENGTH)
-		this.DestroyHash(HASH_HANDLE)
-		this.CloseAlgorithmProvider(ALG_HANDLE)
+		this.BCryptDestroyHash(HASH_HANDLE)
+		this.BCryptCloseAlgorithmProvider(ALG_HANDLE)
 		return hash
 	}
 
@@ -298,8 +298,8 @@ class bcrypt
 		this.BCryptHashData(HASH_HANDLE, STRING, encoding)
 		HASH_LENGTH   := this.BCryptFinishHash(HASH_HANDLE, HASH_LENGTH, HASH_DATA)
 		hash          := this.CalcHash(HASH_DATA, HASH_LENGTH)
-		this.DestroyHash(HASH_HANDLE)
-		this.CloseAlgorithmProvider(ALG_HANDLE)
+		this.BCryptDestroyHash(HASH_HANDLE)
+		this.BCryptCloseAlgorithmProvider(ALG_HANDLE)
 		return hash
 	}
 
@@ -327,8 +327,8 @@ class bcrypt
 		f.Close()
 		HASH_LENGTH   := this.BCryptFinishHash(HASH_HANDLE, HASH_LENGTH, HASH_DATA)
 		hash          := this.CalcHash(HASH_DATA, HASH_LENGTH)
-		this.DestroyHash(HASH_HANDLE)
-		this.CloseAlgorithmProvider(ALG_HANDLE)
+		this.BCryptDestroyHash(HASH_HANDLE)
+		this.BCryptCloseAlgorithmProvider(ALG_HANDLE)
 		return hash
 	}
 
