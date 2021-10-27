@@ -1,4 +1,8 @@
 # HashCalc by jNizM
+[![AHK](https://img.shields.io/badge/ahk-1.1.33.10-C3D69B.svg?style=flat-square)]()
+[![OS](https://img.shields.io/badge/os-windows-C3D69B.svg?style=flat-square)]()
+[![Releases](https://img.shields.io/github/downloads/jNizM/HashCalc/total.svg?style=flat-square&color=95B3D7)](https://github.com/jNizM/HashCalc/releases)
+
 Calculate hash from string, hex or file via AutoHotkey
 
 
@@ -32,8 +36,8 @@ If you notice any kind of bugs or issues, report them on the [AHK Thread](https:
 
 
 ## Copyright and License
-[MIT License](LICENSE)
+[![MIT License](https://img.shields.io/github/license/jNizM/stay-awake.svg?style=flat-square&color=C3D69B)](LICENSE)
 
 
 ## Donations
-[Donations are appreciated if I could help you](https://www.paypal.me/smithz)
+[![PayPal](https://img.shields.io/badge/paypal-donate-B2A2C7.svg?style=flat-square)](https://www.paypal.me/smithz)
