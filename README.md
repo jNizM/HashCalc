@@ -36,7 +36,7 @@ If you notice any kind of bugs or issues, report them on the [AHK Thread](https:
 
 
 ## Copyright and License
-[![MIT License](https://img.shields.io/github/license/jNizM/stay-awake.svg?style=flat-square&color=C3D69B)](LICENSE)
+[![MIT License](https://img.shields.io/github/license/jNizM/HashCalc.svg?style=flat-square&color=C3D69B)](LICENSE)
 
 
 ## Donations
