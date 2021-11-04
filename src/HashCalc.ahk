@@ -19,7 +19,7 @@
 
 ; GLOBALS ===================================================================================================================================================================
 
-app := Map("name", "HashCalc", "version", "1.0", "release", "2021-11-04", "author", "jNizM", "licence", "MIT")
+app := Map("name", "HashCalc", "version", "1.01", "release", "2021-11-04", "author", "jNizM", "licence", "MIT")
 
 hHLINE := DllCall("gdi32\CreateBitmap", "int", 1, "int", 2, "uint", 0x1, "uint", 32, "int64*", 0x7fa5a5a57f5a5a5a, "ptr")
 
@@ -108,7 +108,7 @@ Main.AddPicture("xs+15 y+10 w584 h1 BackgroundTrans", "HBITMAP:*" hHLINE)
 
 Main.AddText("xs+15 y+10 w80 h25 0x200", "Verify")
 TB02ED09 := Main.AddEdit("x+5 yp w435")
-TB02ED09.OnEvent("Change", VerifyText)
+TB02ED09.OnEvent("Change", VerifyFile)
 TB02ED10 := Main.AddEdit("x+5 yp w60 0x800")
 
 Main.SetFont("s10 c696969", "Segoe UI")
@@ -129,12 +129,12 @@ TB03ED02.OnEvent("Change", PBKDF2)
 
 Main.AddText("xs+15 y+7 w80 h25 0x200", "Iterations")
 TB03ED03 := Main.AddEdit("x+5 yp w500 0x2000")
-Main.AddUpDown("Range1-2147483647", 4096)
+Main.AddUpDown("Range1-2147483647 0x80", 4096)
 TB03ED03.OnEvent("Change", PBKDF2)
 
 Main.AddText("xs+15 y+7 w80 h25 0x200", "KeyBitLength")
 TB03ED04 := Main.AddEdit("x+5 yp w500 0x2000")
-Main.AddUpDown("Range8-2147483640", 256)
+Main.AddUpDown("Range8-2147483640 0x80", 256)
 TB03ED04.OnEvent("Change", PBKDF2)
 
 Main.AddText("xs+15 y+7 w80 h25 0x200", "Algorithm")
@@ -149,8 +149,9 @@ TB03ED05 := Main.AddEdit("x+5 yp w500 r7")
 Main.AddPicture("xs+15 y+10 w584 h1 BackgroundTrans", "HBITMAP:*" hHLINE)
 
 Main.AddText("xs+15 y+10 w80 h25 0x200", "Verify")
-Main.AddEdit("x+5 yp w435")
-TB03ED06 := Main.AddEdit("x+5 yp w60 0x800")
+TB03ED06 := Main.AddEdit("x+5 yp w435")
+TB03ED06.OnEvent("Change", VerifyPBKDF2)
+TB03ED07 := Main.AddEdit("x+5 yp w60 0x800")
 
 Main.SetFont("s10 c696969", "Segoe UI")
 TB03TX01 := Main.AddText("xs+15 y+49 w585 h25 0x200")
@@ -224,7 +225,7 @@ VerifyText(*)
 	{
 		case TB01ED03.Text: TB01ED11.Text := "MD2",    TB01ED11.SetFont("c008000")
 		case TB01ED04.Text: TB01ED11.Text := "MD4",    TB01ED11.SetFont("c008000")
-		case TB01ED05.Text: TB01ED11.Text := "MD4",    TB01ED11.SetFont("c008000")
+		case TB01ED05.Text: TB01ED11.Text := "MD5",    TB01ED11.SetFont("c008000")
 		case TB01ED06.Text: TB01ED11.Text := "SHA1",   TB01ED11.SetFont("c008000")
 		case TB01ED07.Text: TB01ED11.Text := "SHA256", TB01ED11.SetFont("c008000")
 		case TB01ED08.Text: TB01ED11.Text := "SHA384", TB01ED11.SetFont("c008000")
@@ -274,7 +275,7 @@ VerifyFile(*)
 	{
 		case TB02ED02.Text: TB02ED10.Text := "MD2",    TB02ED10.SetFont("c008000")
 		case TB02ED03.Text: TB02ED10.Text := "MD4",    TB02ED10.SetFont("c008000")
-		case TB02ED04.Text: TB02ED10.Text := "MD4",    TB02ED10.SetFont("c008000")
+		case TB02ED04.Text: TB02ED10.Text := "MD5",    TB02ED10.SetFont("c008000")
 		case TB02ED05.Text: TB02ED10.Text := "SHA1",   TB02ED10.SetFont("c008000")
 		case TB02ED06.Text: TB02ED10.Text := "SHA256", TB02ED10.SetFont("c008000")
 		case TB02ED07.Text: TB02ED10.Text := "SHA384", TB02ED10.SetFont("c008000")
@@ -313,10 +314,14 @@ PBKDF2(*)
 
 VerifyPBKDF2(*)
 {
-	if (TB03ED05.Text)
-		TB01ED11.Text := "OK",    TB01ED11.SetFont("c008000")
+	if (TB03ED06.Text = TB03ED05.Text)
+	{
+		TB03ED07.Text := "OK",    TB03ED07.SetFont("c008000")
+	}
 	else
-		TB01ED11.Text := "FALSE", TB01ED11.SetFont("c008000")
+	{
+		TB03ED07.Text := "FALSE", TB03ED07.SetFont("c800000")
+	}
 }
 
 
