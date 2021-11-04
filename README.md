@@ -1,6 +1,6 @@
 # HashCalc by jNizM
-[![AHK](https://img.shields.io/badge/ahk-1.1.33.10-C3D69B.svg?style=flat-square)]()
-[![OS](https://img.shields.io/badge/os-windows-C3D69B.svg?style=flat-square)]()
+[![AHK](https://img.shields.io/badge/ahk-2.0--beta.3%20(x64)-C3D69B.svg?style=flat-square)]()
+[![OS](https://img.shields.io/badge/os-windows%2011%20(x64)-C3D69B.svg?style=flat-square)]()
 [![Releases](https://img.shields.io/github/downloads/jNizM/HashCalc/total.svg?style=flat-square&color=95B3D7)](https://github.com/jNizM/HashCalc/releases)
 
 Calculate hash from string, hex or file via AutoHotkey
@@ -32,7 +32,7 @@ Calculate hash from string, hex or file via AutoHotkey
 
 
 ## Questions / Bugs / Issues
-If you notice any kind of bugs or issues, report them on the [AHK Thread](https://www.autohotkey.com/boards/viewtopic.php?t=87). Same for any kind of questions.
+If you notice any kind of bugs or issues, report them on the [AHK Thread](https://www.autohotkey.com/boards/viewtopic.php?t=96316). Same for any kind of questions.
 
 
 ## Copyright and License
