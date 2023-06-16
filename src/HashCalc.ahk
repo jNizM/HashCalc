@@ -2,24 +2,33 @@
 
 /*
 	HashCalc (written in AutoHotkey)
-
 	Author ....: jNizM
 	Released ..: 2014-03-11
-	Modified ..: 2021-11-04
+	Modified ..: 2023-06-16
 	License ...: MIT
 	GitHub ....: https://github.com/jNizM/HashCalc
 	Forum .....: https://www.autohotkey.com/boards/viewtopic.php?t=96316
 */
 
 
-; SCRIPT DIRECTIVES =========================================================================================================================================================
+; COMPILER DIRECTIVES =========================================================================================================================================
+
+;@Ahk2Exe-SetDescription    HashCalc (x64)
+;@Ahk2Exe-SetFileVersion    1.0.2
+;@Ahk2Exe-SetProductName    HashCalc
+;@Ahk2Exe-SetProductVersion 2.0.2
+;@Ahk2Exe-SetCopyright      (c) 2014-2023 jNizM
+;@Ahk2Exe-SetLanguage       0x0407
+
+
+; SCRIPT DIRECTIVES ===========================================================================================================================================
 
 #Requires AutoHotkey v2.0-
 
 
 ; GLOBALS ===================================================================================================================================================================
 
-app := Map("name", "HashCalc", "version", "1.01", "release", "2021-11-04", "author", "jNizM", "licence", "MIT")
+app := Map("name", "HashCalc", "version", "1.0.2", "release", "2023-06-16", "author", "jNizM", "licence", "MIT")
 
 hHLINE := DllCall("gdi32\CreateBitmap", "int", 1, "int", 2, "uint", 0x1, "uint", 32, "int64*", 0x7fa5a5a57f5a5a5a, "ptr")
 
@@ -262,8 +271,8 @@ HashFile(*)
 			TB02ED06.Text := Hash.File("SHA-256", TB02ED01.Text)
 		if (TB02CB06.Value)
 			TB02ED07.Text := Hash.File("SHA-384", TB02ED01.Text)
-		if (TB02CB06.Value)
-			TB02ED04.Text := Hash.File("SHA-512", TB02ED01.Text)
+		if (TB02CB07.Value)
+			TB02ED08.Text := Hash.File("SHA-512", TB02ED01.Text)
 		VerifyFile()
 	}
 }
